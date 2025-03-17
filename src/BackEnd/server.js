@@ -10,6 +10,8 @@ const axios = require('axios');
 const FormData = require('form-data');
 const app = express();
 const PORT = process.env.PORT || 4000;
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Middleware
 app.use(cors());
@@ -26,24 +28,25 @@ mongoose.connect('mongodb+srv://Admin:Admin@cluster0.uxdft.mongodb.net/DB11', {
 // User Model
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true }, // Make it required
+  email: { type: String, required: true, unique: true }, 
+  password: { type: String, required: true }, // Added password field
+  phone: { type: String, default: null }, // Phone can be null
+  balance: { type: Number, default: 5, min: 0, integer: true }, // Default 5, must be int
   faceEncoding: { type: Array, required: true },
   registrationDate: { type: Date, default: Date.now }
 });
 
-const User = mongoose.model('User', userSchema);
-
-// Ticket Model
-const ticketSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  busRoute: { type: String, required: true },
-  ticketPrice: { type: Number, required: true },
-  purchaseDate: { type: Date, default: Date.now },
-  isUsed: { type: Boolean, default: false },
-  usedDate: { type: Date }
+// Hash password before saving
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-const Ticket = mongoose.model('Ticket', ticketSchema);
+
+const User = mongoose.model('User', userSchema);
 
 // Set up multer for file upload
 const storage = multer.diskStorage({
@@ -61,12 +64,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+
 // Example of how to update the register endpoint in your Node.js server
-app.post('/api/register', upload.single('image'), async (req, res) => {
+app.post('/api/user-register', upload.single('image'), async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name,password,phone } = req.body;
     const email = req.body.email || `user_${Date.now()}@example.com`; // Default email
     const imagePath = req.file.path;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
 
     console.log(`Processing registration for ${name} with email ${email}`);
     console.log(`Image saved at: ${imagePath}`)
@@ -93,7 +101,10 @@ app.post('/api/register', upload.single('image'), async (req, res) => {
     // Create new user with face encoding
     const newUser = new User({
       name,
-      email, // Include email
+      email, 
+      password, // Ensure password is provided, will be hashed automatically
+      phone: phone || null, // Allow phone to be null
+      balance: 5, // Default balance as integer
       faceEncoding
     });
     
@@ -113,14 +124,14 @@ app.post('/api/register', upload.single('image'), async (req, res) => {
   }
 });
 
-app.get('/api/user/:id', async (req, res) => {
+app.get('/api/register-user/:id', async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json({ success: false, message: "User not found" });
   
   res.json({ success: true, user });
 });
 
-app.get('/api/user', async (req, res) => {
+app.get('/api/register-user', async (req, res) => {
   try {
     const users = await User.find(); // Fetch all users from MongoDB
     res.json({ success: true, users });

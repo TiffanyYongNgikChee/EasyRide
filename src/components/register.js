@@ -3,6 +3,9 @@ import axios from 'axios';
 
 const Registration = () => {
   const [name, setName] = useState(''); // Store user name
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [image, setImage] = useState(null); // Store the captured image
   const [loading, setLoading] = useState(false); // Indicates when the registration is processing
   const [message, setMessage] = useState(''); // Display success/error messages
@@ -59,32 +62,6 @@ const Registration = () => {
     }, 'image/jpeg', 0.95);
   };
 
-  const verifyFaceEncoding = async (userId, retries = 5, delay = 3000) => {
-    for (let i = 0; i < retries; i++) {
-      try {
-        console.log(`Attempt ${i + 1}: Checking user in MongoDB...`);
-  
-        const response = await axios.get(`http://localhost:4000/api/user/${userId}`);
-  
-        if (response.data.success && response.data.user.faceEncoding.length > 0) {
-          setMessage("Registration successful! Face encoding confirmed in MongoDB.");
-          setMessageType('success');
-          return;
-        } else {
-          console.log("User found, but no face encoding yet...");
-        }
-      } catch (error) {
-        console.error("Verification error:", error);
-      }
-  
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  
-    setMessage("Registration completed, but face encoding verification failed.");
-    setMessageType('warning');
-  };
-  
   // Submit Form (Send Data to Backend)
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,30 +71,36 @@ const Registration = () => {
     setMessageType('info');
     
     // Ensures both name and image are provided.
-    if (!name || !image) {
-      setMessage("Please provide your name and capture your image");
+    if (!name || !email || !password || !image) {
+      setMessage("All fields are required (phone is optional).");
+      setLoading(false);
       return;
     }
     // Prepares a FormData object and appends
     const formData = new FormData();
     formData.append('name', name);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('phone', phone);
     formData.append('image', image, 'face.jpg');
     
     // Sends a POST request to /api/register
     try {
-      const response = await axios.post('http://localhost:4000/api/register', formData, {
+      const response = await axios.post('http://localhost:4000/api/user-register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
       
       setMessage(`Registration successful! User ID: ${response.data.userId}`);
+      setMessageType('success');
       setName('');
+      setEmail('');
+      setPassword('');
+      setPhone('');
       setImage(null);
       stopCamera();
 
-      // verify the face encoding was stored correctly
-      verifyFaceEncoding(response.data.userId);
     } catch (error) {
       console.error("Registration error:", error);
       setMessage(error.response?.data?.message || "Registration failed. Please try again.");
@@ -128,78 +111,54 @@ const Registration = () => {
   
   return (
     <div className="registration-container">
-      <h2>Bus System Registration</h2>
+      <h2>Register</h2>
       
       <form onSubmit={handleSubmit} className="registration-form">
         <div className="form-group">
-          <label htmlFor="name">Full Name:</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+          <label>Full Name:</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
-        
+
+        <div className="form-group">
+          <label>Email:</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+
+        <div className="form-group">
+          <label>Password:</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+
+        <div className="form-group">
+          <label>Phone (optional):</label>
+          <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        </div>
+
         <div className="camera-section">
-          <div className="video-container">
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              muted 
-              className="camera-feed"
-            ></video>
-            <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
-          </div>
-          
+          <video ref={videoRef} autoPlay muted className="camera-feed"></video>
+          <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+
           {image && (
             <div className="preview-container">
-              <img 
-                src={URL.createObjectURL(image)} 
-                alt="Captured" 
-                className="image-preview" 
-              />
+              <img src={URL.createObjectURL(image)} alt="Captured" className="image-preview" />
             </div>
           )}
-          
+
           <div className="camera-controls">
             {!streamActive ? (
-              <button 
-                type="button" 
-                onClick={startCamera} 
-                className="camera-button"
-              >
-                Start Camera
-              </button>
+              <button type="button" onClick={startCamera}>Start Camera</button>
             ) : (
               <>
-                <button 
-                  type="button" 
-                  onClick={captureImage} 
-                  className="camera-button"
-                >
-                  Capture Image
-                </button>
-                <button 
-                  type="button" 
-                  onClick={stopCamera} 
-                  className="camera-button secondary"
-                >
-                  Stop Camera
-                </button>
+                <button type="button" onClick={captureImage}>Capture Image</button>
+                <button type="button" onClick={stopCamera}>Stop Camera</button>
               </>
             )}
           </div>
         </div>
-        
-        {message && <div className="message">{message}</div>}
-        
-        <button 
-          type="submit" 
-          disabled={loading || !image || !name} 
-          className="submit-button"
-        >
+
+        {message && <div className={`message ${messageType}`}>{message}</div>}
+
+        <button type="submit" disabled={loading || !image}> 
           {loading ? "Processing..." : "Register"}
         </button>
       </form>
