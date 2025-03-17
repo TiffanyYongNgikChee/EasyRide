@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const Registration = () => {
   const [name, setName] = useState(''); // Store user name
@@ -111,7 +112,10 @@ const Registration = () => {
   
   return (
     <div className="registration-container">
-      <h2>Register</h2>
+      <div className="header">
+        <h2>Register</h2>
+        <Link to="/" className="back-to-menu">Back to Menu</Link>
+      </div>
       
       <form onSubmit={handleSubmit} className="registration-form">
         <div className="form-group">
@@ -130,7 +134,7 @@ const Registration = () => {
         </div>
 
         <div className="form-group">
-          <label>Phone (optional):</label>
+          <label>Phone :</label>
           <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
 

@@ -7,10 +7,9 @@ const UserMenu = () => {
         <Navbar bg="dark" data-bs-theme="dark">
           <Container>
             <Nav className="me-auto">
-              <Nav.Link href="/register">Register Face</Nav.Link>
-              <Nav.Link href="/ticket">Buy Ticket</Nav.Link>
-              <Nav.Link href="/camera">System Camera</Nav.Link>
-              <Nav.Link href="/history">History/Record</Nav.Link>
+              <Nav.Link href="/register">Register</Nav.Link>
+              <Nav.Link href="/ticket">Login</Nav.Link>
+              <Nav.Link href="/camera">Ticket</Nav.Link>
             </Nav>
           </Container>
       </Navbar>
