@@ -98,33 +98,6 @@ def compare_faces():
         if len(stored_encodings) == 0:
             return jsonify({"error": "No encodings provided"}), 400
             
-        # Check first encoding
-        if len(stored_encodings) > 0:
-            first_enc = stored_encodings[0]
-            print(f"First encoding type: {type(first_enc)}, length: {len(first_enc) if isinstance(first_enc, list) else 'not a list'}")
-            
-            if isinstance(first_enc, list):
-                print(f"First 5 values: {first_enc[:5]}")
-
-        # Read uploaded image
-        file = request.files['image']
-        image = face_recognition.load_image_file(file)
-
-        # Generate encoding for the uploaded image
-        face_locations = face_recognition.face_locations(image)
-        print(f"Detected {len(face_locations)} faces in uploaded image")
-        
-        if not face_locations:
-            return jsonify({"error": "No face detected in the uploaded image"}), 400
-            
-        uploaded_encodings = face_recognition.face_encodings(image, face_locations)
-        
-        if not uploaded_encodings:
-            return jsonify({"error": "Could not generate encoding for detected face"}), 400
-        
-        uploaded_encoding = uploaded_encodings[0]
-        print(f"Generated uploaded encoding with shape: {uploaded_encoding.shape}")
-
         # Validate and convert stored encodings to NumPy arrays
         valid_encodings = []
         valid_user_ids = []
@@ -146,22 +119,46 @@ def compare_faces():
         if not valid_encodings:
             return jsonify({"error": "No valid encodings to compare"}), 400
 
-        # Compare the uploaded encoding with stored encodings
-        matches = face_recognition.compare_faces(valid_encodings, uploaded_encoding)
-        print(f"Comparison results: {matches}")
+        # Read uploaded image
+        file = request.files['image']
+        image = face_recognition.load_image_file(file)
 
-        if True in matches:
-            matched_index = matches.index(True)
-            matched_user_id = valid_user_ids[matched_index]
-            print(f"Found match: user {matched_user_id}")
+        # Generate encoding for the uploaded image
+        face_locations = face_recognition.face_locations(image)
+        print(f"Detected {len(face_locations)} faces in uploaded image")
+        
+        if not face_locations:
+            return jsonify({"error": "No face detected in the uploaded image"}), 400
             
+        uploaded_encodings = face_recognition.face_encodings(image, face_locations)
+        
+        if not uploaded_encodings:
+            return jsonify({"error": "Could not generate encoding for detected face"}), 400
+        
+        uploaded_encoding = uploaded_encodings[0]
+        print(f"Generated uploaded encoding with shape: {uploaded_encoding.shape}")
+
+        # Compare the uploaded encoding with stored encodings using face distance
+        face_distances = face_recognition.face_distance(valid_encodings, uploaded_encoding)
+        print(f"Calculated face distances: {face_distances}")
+
+        # Find the closest match based on face distance
+        min_distance = min(face_distances)
+        match_index = face_distances.argmin()
+
+        # Set a threshold to determine if the faces match
+        threshold = 0.4  # You can adjust this threshold
+        if min_distance < threshold:
+            matched_user_id = valid_user_ids[match_index]
+            print(f"Match found! User ID: {matched_user_id}, Distance: {min_distance}")
             return jsonify({
                 "match": True,
-                "userId": matched_user_id
+                "userId": matched_user_id,
+                "distance": min_distance
             })
         else:
-            print("No matches found")
-            return jsonify({"match": False})
+            print(f"No match found. Best distance: {min_distance}")
+            return jsonify({"match": False, "distance": min_distance})
 
     except Exception as e:
         print("Error occurred:", str(e))
