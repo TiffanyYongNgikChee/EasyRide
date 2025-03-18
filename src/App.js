@@ -1,11 +1,12 @@
-import Ticket from './components/buy_ticket';
+import BusTimetable from './components/BusTimetable';
 import History from './components/history';
 import Register from './components/register';
 import Camera from './components/system_camera';
 import UserMenu from './components/user_menu';
 import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "./Register.css";
+import "./css/Register.css";
+import "./css/timetable.css";
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
         } />
 
         {/* Other Routes */}
-        <Route path="/ticket" element={<Ticket />} />
+        <Route path="/timetable" element={<BusTimetable />} />
         <Route path="/camera" element={<Camera />} />
         <Route path="/history" element={<History />} />
       </Routes>

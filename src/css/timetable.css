@@ -1,0 +1,92 @@
+/* BusTimetable.css */
+.bus-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+  }
+  
+  .bus-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #007bff;
+  }
+  
+  .bus-route {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .bus-details {
+    border-left: 4px solid #ddd;
+    padding-left: 15px;
+    margin-top: 10px;
+  }
+  
+  .bus-time {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .bus-location {
+    color: #555;
+    font-size: 14px;
+  }
+  
+  .bus-journey-time {
+    font-size: 13px;
+    color: #888;
+  }
+  
+  .bus-icons {
+    display: flex;
+    gap: 10px;
+    font-size: 18px;
+    color: #555;
+    margin-top: 10px;
+  }
+  
+  .bus-button {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+  }
+  
+  .bus-button:hover {
+    background: #0056b3;
+  }
+  
+  .bus-badges {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+  }
+  
+  .badge {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .cheapest {
+    background: #007bff;
+  }
+  
+  .quickest {
+    background: #28a745;
+  }
+  
