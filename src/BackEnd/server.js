@@ -197,7 +197,7 @@ app.post('/api/verify-face', upload.single('image'), async (req, res) => {
     if (response.data.match) {
       // Find the user who matched the encoding
       const matchedUser = await User.findById(response.data.userId);
-      return res.json({ match: true, userName: matchedUser.name, userId: matchedUser.id, balance: matchedUser.balance });
+      return res.json({ match: true, userName: matchedUser.name, userId: matchedUser.id, balance: matchedUser.balance});
     } else {
       return res.json({ match: false });
     }
@@ -209,33 +209,78 @@ app.post('/api/verify-face', upload.single('image'), async (req, res) => {
 
 // Payment Processing Endpoint
 app.post('/pay-with-face', async (req, res) => {
+  console.log('Request body:', req.body);
+
   try {
-    const { userId, ticketPrice } = req.body;
-    const user = await User.findById(userId);
+    const { userId, ticketPrice } = req.body; //  extracts the userId and ticketPrice from the body of the incoming request
+    if (!userId || !ticketPrice) {
+      console.log('Missing userId or ticketPrice');
+      return res.status(400).json({ message: 'Missing userId or ticketPrice' });
+    }
+    // Ensure ticketPrice is a number
+    const ticketPriceNum = parseFloat(ticketPrice);
+    if (isNaN(ticketPriceNum)) {
+      return res.status(400).json({ message: 'Invalid ticket price' });
+    }
+    const user = await User.findById(userId); // Finding the User in the Database
 
     if (!user) {
+      console.log('User not found for userId:', userId);
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (user.balance < ticketPrice) {
+    console.log(`User found. Balance: €${user.balance}, Ticket Price: €${ticketPriceNum}`);
+
+    if (user.balance < ticketPriceNum) {
+      // Log the failed transaction with 'failure' status
+      const transaction = new Transaction({
+        user_id: userId,
+        type: 'deduction',
+        amount: ticketPriceNum,
+        status: 'failure', // Transaction failed due to insufficient balance
+      });
+      await transaction.save();
+
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
-    // Deduct balance & create transaction
-    user.balance -= ticketPrice;
+    // Deduct balance & create transaction on success
+    user.balance -= ticketPriceNum;
     await user.save();
 
     const transaction = new Transaction({
       user_id: userId,
       type: 'deduction',
-      amount: ticketPrice,
-      status: 'success',
+      amount: ticketPriceNum,
+      status: 'success', // Transaction was successful
     });
     await transaction.save();
 
     res.json({ success: true, remainingBalance: user.balance });
   } catch (error) {
-    res.status(500).json({ error: 'Payment processing failed' });
+    console.error("Error processing payment:", error);
+    res.status(500).json({ message: 'Payment processing failed', error: error.message });
+  }
+});
+
+// Define the route to get all transactions
+app.get('/transactions', async (req, res) => {
+  try {
+    // Retrieve all transactions from the database
+    const transactions = await Transaction.find()
+      .populate('user_id', 'name email') // Populate the user details
+      .sort({ time_stamp: -1 }); // Sort by time_stamp in descending order (latest first)
+
+    // Check if there are any transactions
+    if (transactions.length === 0) {
+      return res.status(404).json({ message: 'No transactions found.' });
+    }
+
+    // Send the transactions as response
+    res.json(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ message: 'Error retrieving transactions.' });
   }
 });
 

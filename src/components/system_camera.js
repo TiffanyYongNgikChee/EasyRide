@@ -7,8 +7,17 @@ const Camera = () => {
   const [message, setMessage] = useState('');
   const [streamActive, setStreamActive] = useState(false);
   const [user, setUser] = useState(null);
-  const [ticketPrice, setTicketPrice] = useState(17.50); // Example ticket price
+  const [ticketPrice, setTicketPrice] = useState(null); // Example ticket price
+  const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false); // State for tracking payment confirmation
   
+  useEffect(() => {
+    // Retrieve the ticket price from localStorage
+    const price = localStorage.getItem("ticketPrice");
+    if (price) {
+      setTicketPrice(price); // Set the ticket price in state
+    }
+  }, []);
+
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -49,14 +58,9 @@ const Camera = () => {
         });
         
         if (response.data.match) {
-          setUser({
-            userId: response.data.userId,
-            userName: response.data.userName,
-          });
-          setMessage(`✅ Face Verified! Welcome, ${response.data.userName}`);
-          // Proceed to automatic payment after verification
-          handlePayment(response.data.userId);
-          
+          setMessage(`✅ User Found: ${response.data.userName}, ${response.data.balance}`);
+          setUser(response.data); // Save user data for later
+          setIsPaymentConfirmed(false); // Reset payment confirmation state
         } else {
           setMessage("❌ User Not Found. Please register.");
         }
@@ -67,25 +71,49 @@ const Camera = () => {
     }, "image/jpeg", 0.95);
   };
 
-  // 💳 Handle Payment after Face Verification
-  const handlePayment = async (userId) => {
-    try {
-      const response = await axios.post("http://localhost:4000/pay-with-face", {
-        userId,
-        ticketPrice
-      });
+  const handleConfirmPayment = async () => {
+    if (!user || !ticketPrice) return;
+    // Convert ticketPrice to a number
+    const ticketPriceNum = parseFloat(ticketPrice);
 
-      if (response.status === 200) {
-        setMessage(`✅ Payment Successful! New Balance: $${response.data.remainingBalance}`);
+    const paymentData = {
+      userId: user.userId,
+      ticketPrice: ticketPriceNum,
+    };
+  
+    console.log("Payment data being sent:", paymentData); // Log the payment data
+  
+    try {
+      const paymentResponse = await axios.post("http://localhost:4000/pay-with-face", paymentData);
+
+      if (paymentResponse.data.success) {
+        // If payment is successful, show success message
+        setMessage(`✅ Payment Successful! Remaining Balance: €${paymentResponse.data.remainingBalance}`);
+        setIsPaymentConfirmed(true); // Payment confirmed successfully
       } else {
-        alert(`❌ Payment Failed: ${response.data.message}`);
+        // Handle general payment failure (non-200 responses from the backend)
+        setMessage(`❌ Payment Failed: ${paymentResponse.data.message}`);
       }
     } catch (error) {
-      console.error("Payment error:", error);
-      setMessage("⚠️ Payment processing error.");
+      // Handle errors, specifically 'Insufficient balance' or other backend responses
+      if (error.response) {
+        // If the error has a response (status code 400 or other), handle accordingly
+        if (error.response.status === 400 && error.response.data.message === "Insufficient balance") {
+          setMessage("⚠️ You don't have enough funds to complete the payment.");
+        } else {
+          setMessage(`⚠️ Error: ${error.response.data.message || "Something went wrong"}`);
+        }
+      } else if (error.request) {
+        // If no response was received (network error)
+        console.error("No response received:", error.request);
+        setMessage("⚠️ No response from the server.");
+      } else {
+        // If the error occurred while setting up the request
+        console.error("Error message:", error.message);
+        setMessage(`⚠️ Error: ${error.message}`);
+      }
     }
   };
-
   useEffect(() => {
     const interval = setInterval(() => {
       if (streamActive) verifyFace();
@@ -100,18 +128,25 @@ const Camera = () => {
       <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
       <p>{message}</p>
 
-      {user && (
+      {user && !isPaymentConfirmed && (
         <div className="user-info">
           <p><strong>👤 User:</strong> {user.userName}</p>
-          <p><strong>💳 Ticket Price:</strong> ${ticketPrice}</p>
+          <p><strong>💳 Ticket Price:</strong> €{ticketPrice}</p>
+          <button onClick={handleConfirmPayment}>Confirm Payment</button>
         </div>
+      )}
+
+      {ticketPrice ? (
+        <p>Your selected ticket price is: €{ticketPrice}</p>
+      ) : (
+        <p>No ticket price selected</p>
       )}
 
       {!streamActive ? (
         <button onClick={startCamera}>Start Camera</button>
       ) : (
         <>
-          <button onClick={verifyFace}>Verify Face & Pay</button>
+          <button onClick={verifyFace}>Verify Face & Check Balance</button>
           <button onClick={stopCamera}>Stop Camera</button>
         </>
       )}

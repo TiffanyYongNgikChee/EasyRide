@@ -1,9 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 
 const BusTimetable = () => {
+  const navigate = useNavigate(); // Initialize navigation hook
+
+  // Bus Timetable Data
   const buses = [
     {
       id: 1,
@@ -119,6 +123,13 @@ const BusTimetable = () => {
     }
   ];
 
+  // Function to handle ticket selection - The price field stores the price of the ticket for each bus.
+  const handleSelectTicket = (price) => {
+    localStorage.setItem("ticketPrice", price); // Store ticket price
+    navigate("/camera"); // Redirect to Camera page
+  };
+
+
   return (
     
     <div className="bus-list">
@@ -147,7 +158,9 @@ const BusTimetable = () => {
 
           <div className="bus-icons">📶 🔄 🌿</div>
 
-          <button className="bus-button">Choose</button>
+          <button className="bus-button" onClick={() => handleSelectTicket(bus.price)}>
+            Choose
+          </button>
 
           <div className="bus-badges">
             {bus.cheapest && <span className="badge cheapest">CHEAPEST</span>}
