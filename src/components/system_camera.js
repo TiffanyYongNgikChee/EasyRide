@@ -6,7 +6,9 @@ const Camera = () => {
   const canvasRef = useRef(null);
   const [message, setMessage] = useState('');
   const [streamActive, setStreamActive] = useState(false);
-
+  const [user, setUser] = useState(null);
+  const [ticketPrice, setTicketPrice] = useState(17.50); // Example ticket price
+  
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -47,7 +49,14 @@ const Camera = () => {
         });
         
         if (response.data.match) {
-          setMessage(`✅ User Found: ${response.data.userName}`);
+          setUser({
+            userId: response.data.userId,
+            userName: response.data.userName,
+          });
+          setMessage(`✅ Face Verified! Welcome, ${response.data.userName}`);
+          // Proceed to automatic payment after verification
+          handlePayment(response.data.userId);
+          
         } else {
           setMessage("❌ User Not Found. Please register.");
         }
@@ -58,6 +67,25 @@ const Camera = () => {
     }, "image/jpeg", 0.95);
   };
 
+  // 💳 Handle Payment after Face Verification
+  const handlePayment = async (userId) => {
+    try {
+      const response = await axios.post("http://localhost:4000/pay-with-face", {
+        userId,
+        ticketPrice
+      });
+
+      if (response.status === 200) {
+        setMessage(`✅ Payment Successful! New Balance: $${response.data.remainingBalance}`);
+      } else {
+        alert(`❌ Payment Failed: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      setMessage("⚠️ Payment processing error.");
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (streamActive) verifyFace();
@@ -66,17 +94,24 @@ const Camera = () => {
   }, [streamActive]);
 
   return (
-    <div className="face-verification-container">
-      <h2>Face Verification</h2>
+    <div className="ticket-purchase-container">
+      <h2>Buy Your Ticket with Face Recognition</h2>
       <video ref={videoRef} autoPlay className="camera-feed"></video>
       <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
       <p>{message}</p>
-      
+
+      {user && (
+        <div className="user-info">
+          <p><strong>👤 User:</strong> {user.userName}</p>
+          <p><strong>💳 Ticket Price:</strong> ${ticketPrice}</p>
+        </div>
+      )}
+
       {!streamActive ? (
         <button onClick={startCamera}>Start Camera</button>
       ) : (
         <>
-          <button onClick={verifyFace}>Verify Face</button>
+          <button onClick={verifyFace}>Verify Face & Pay</button>
           <button onClick={stopCamera}>Stop Camera</button>
         </>
       )}
