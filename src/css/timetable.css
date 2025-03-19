@@ -1,7 +1,13 @@
 /* BusTimetable.css */
+@keyframes animatedGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 .bus-list{
-  background: url('../Image/timetable.jpeg') no-repeat center center fixed;
-  background-size: cover;
+  background: linear-gradient(-45deg, #c4ff9a, #dcffe1, #196248, #118f0a);
+  background-size: 400% 400%;
+  animation: animatedGradient 10s ease infinite;
 
 }
 .bus-container {
@@ -61,7 +67,7 @@
   
   .bus-button {
     display: inline-block;
-    background: #007bff;
+    background: #75f642;
     color: white;
     padding: 10px 15px;
     border: none;
