@@ -1,4 +1,9 @@
 /* BusTimetable.css */
+.bus-list{
+  background: url('../Image/timetable.jpeg') no-repeat center center fixed;
+  background-size: cover;
+
+}
 .bus-container {
     max-width: 600px;
     margin: 20px auto;
@@ -7,6 +12,7 @@
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
+    
   }
   
   .bus-header {
