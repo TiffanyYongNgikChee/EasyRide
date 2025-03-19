@@ -36,6 +36,15 @@ const userSchema = new mongoose.Schema({
   registrationDate: { type: Date, default: Date.now }
 });
 
+// Transaction Schema
+const TransactionSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  type: String, // 'top-up' or 'deduction'
+  amount: Number,
+  status: String, // 'success' or 'failed'
+  time_stamp: { type: Date, default: Date.now },
+});
+
 // Hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -45,8 +54,8 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-
 const User = mongoose.model('User', userSchema);
+const Transaction = mongoose.model('Transaction', TransactionSchema);
 
 // Set up multer for file upload
 const storage = multer.diskStorage({
@@ -188,13 +197,45 @@ app.post('/api/verify-face', upload.single('image'), async (req, res) => {
     if (response.data.match) {
       // Find the user who matched the encoding
       const matchedUser = await User.findById(response.data.userId);
-      return res.json({ match: true, userName: matchedUser.name });
+      return res.json({ match: true, userName: matchedUser.name, userId: matchedUser.id, balance: matchedUser.balance });
     } else {
       return res.json({ match: false });
     }
   } catch (error) {
     console.error("Face verification error:", error);
     res.status(500).json({ message: "Error verifying face" });
+  }
+});
+
+// Payment Processing Endpoint
+app.post('/pay-with-face', async (req, res) => {
+  try {
+    const { userId, ticketPrice } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.balance < ticketPrice) {
+      return res.status(400).json({ message: 'Insufficient balance' });
+    }
+
+    // Deduct balance & create transaction
+    user.balance -= ticketPrice;
+    await user.save();
+
+    const transaction = new Transaction({
+      user_id: userId,
+      type: 'deduction',
+      amount: ticketPrice,
+      status: 'success',
+    });
+    await transaction.save();
+
+    res.json({ success: true, remainingBalance: user.balance });
+  } catch (error) {
+    res.status(500).json({ error: 'Payment processing failed' });
   }
 });
 
