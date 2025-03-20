@@ -9,12 +9,19 @@ const Camera = () => {
   const [user, setUser] = useState(null);
   const [ticketPrice, setTicketPrice] = useState(null); // Example ticket price
   const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false); // State for tracking payment confirmation
-  
+  const [selectedBus, setSelectedBus] = useState(null);
+
   useEffect(() => {
+    // Retrieve the selected bus data from localStorage
+    const storedBus = localStorage.getItem("selectedBus");
+    if (storedBus) {
+      setSelectedBus(JSON.parse(storedBus)); // Parse and store in state
+    }
+
     // Retrieve the ticket price from localStorage
     const price = localStorage.getItem("ticketPrice");
     if (price) {
-      setTicketPrice(price); // Set the ticket price in state
+      setTicketPrice(price);
     }
   }, []);
 
@@ -72,9 +79,9 @@ const Camera = () => {
   };
 
   const handleConfirmPayment = async () => {
-    if (!user || !ticketPrice) return;
+    if (!user || !selectedBus) return;
     // Convert ticketPrice to a number
-    const ticketPriceNum = parseFloat(ticketPrice);
+    const ticketPriceNum = parseFloat(selectedBus.price);
 
     const paymentData = {
       userId: user.userId,
@@ -131,15 +138,19 @@ const Camera = () => {
       {user && !isPaymentConfirmed && (
         <div className="user-info">
           <p><strong>👤 User:</strong> {user.userName}</p>
-          <p><strong>💳 Ticket Price:</strong> €{ticketPrice}</p>
+          <p><strong>💳 Ticket Price:</strong> €{selectedBus.price}</p>
           <button onClick={handleConfirmPayment}>Confirm Payment</button>
         </div>
       )}
-
-      {ticketPrice ? (
-        <p>Your selected ticket price is: €{ticketPrice}</p>
-      ) : (
-        <p>No ticket price selected</p>
+      {selectedBus && (
+        <div>
+          <h2>Selected Bus Details</h2>
+          <p><strong>Bus Number:</strong> {selectedBus.number}</p>
+          <p><strong>Route:</strong> {selectedBus.route}</p>
+          <p><strong>Departure:</strong> {selectedBus.departureTime} from {selectedBus.departureLocation}</p>
+          <p><strong>Arrival:</strong> {selectedBus.arrivalTime} at {selectedBus.arrivalLocation}</p>
+          <p><strong>Price:</strong> €{selectedBus.price}</p>
+        </div>
       )}
 
       {!streamActive ? (

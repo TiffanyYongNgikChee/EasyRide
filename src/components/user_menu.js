@@ -8,8 +8,8 @@ const UserMenu = () => {
           <Container>
             <Nav className="me-auto">
               <Nav.Link href="/register">Register</Nav.Link>
+              <Nav.Link href="/login">Login</Nav.Link>
               <Nav.Link href="/timetable">Timetable</Nav.Link>
-              <Nav.Link href="/camera">Ticket</Nav.Link>
             </Nav>
           </Container>
       </Navbar>

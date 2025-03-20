@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./css/Register.css";
 import "./css/timetable.css";
+import Login from './components/login';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
 
         {/* Other Routes */}
         <Route path="/timetable" element={<BusTimetable />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/camera" element={<Camera />} />
         <Route path="/history" element={<History />} />
       </Routes>

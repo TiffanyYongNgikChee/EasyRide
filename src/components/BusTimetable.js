@@ -122,12 +122,18 @@ const BusTimetable = () => {
       quickest: true
     }
   ];
+  // Store bus timetable in localStorage
+  localStorage.setItem("busTimetable", JSON.stringify(buses));
+
+  // Retrieve bus timetable from localStorage
+  const storedBuses = JSON.parse(localStorage.getItem("busTimetable")) || [];
+  console.log(storedBuses); // Check the retrieved data
 
   // Function to handle ticket selection - The price field stores the price of the ticket for each bus.
-  const handleSelectTicket = (price) => {
-    localStorage.setItem("ticketPrice", price); // Store ticket price
+  const handleSelectTicket = (bus) => {
+    localStorage.setItem("selectedBus", JSON.stringify(bus)); // Store selected bus details
     navigate("/camera"); // Redirect to Camera page
-  };
+  };  
 
 
   return (
@@ -137,8 +143,8 @@ const BusTimetable = () => {
           <Container>
             <Nav className="me-auto">
               <Nav.Link href="/register">Register</Nav.Link>
+              <Nav.Link href="/login">Login</Nav.Link>
               <Nav.Link href="/timetable">Timetable</Nav.Link>
-              <Nav.Link href="/camera">Ticket</Nav.Link>
             </Nav>
           </Container>
       </Navbar>
@@ -158,9 +164,7 @@ const BusTimetable = () => {
 
           <div className="bus-icons">📶 🔄 🌿</div>
 
-          <button className="bus-button" onClick={() => handleSelectTicket(bus.price)}>
-            Choose
-          </button>
+          <button onClick={() => handleSelectTicket(bus)}>Select</button>
 
           <div className="bus-badges">
             {bus.cheapest && <span className="badge cheapest">CHEAPEST</span>}
