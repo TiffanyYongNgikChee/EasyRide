@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
+import '../css/Camera.css';
+ import { Link } from 'react-router-dom';
 
 const Camera = () => {
   const videoRef = useRef(null);
@@ -130,39 +132,57 @@ const Camera = () => {
   }, [streamActive]);
 
   return (
-    <div className="ticket-purchase-container">
-      <h2>Buy Your Ticket with Face Recognition</h2>
-      <video ref={videoRef} autoPlay className="camera-feed"></video>
-      <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
-      <p>{message}</p>
-
-      {user && !isPaymentConfirmed && (
-        <div className="user-info">
-          <p><strong>👤 User:</strong> {user.userName}</p>
-          <p><strong>💳 Ticket Price:</strong> €{selectedBus.price}</p>
-          <button onClick={handleConfirmPayment}>Confirm Payment</button>
-        </div>
-      )}
-      {selectedBus && (
-        <div>
-          <h2>Selected Bus Details</h2>
-          <p><strong>Bus Number:</strong> {selectedBus.number}</p>
-          <p><strong>Route:</strong> {selectedBus.route}</p>
-          <p><strong>Departure:</strong> {selectedBus.departureTime} from {selectedBus.departureLocation}</p>
-          <p><strong>Arrival:</strong> {selectedBus.arrivalTime} at {selectedBus.arrivalLocation}</p>
-          <p><strong>Price:</strong> €{selectedBus.price}</p>
-        </div>
-      )}
-
-      {!streamActive ? (
-        <button onClick={startCamera}>Start Camera</button>
-      ) : (
-        <>
-          <button onClick={verifyFace}>Verify Face & Check Balance</button>
-          <button onClick={stopCamera}>Stop Camera</button>
-        </>
-      )}
-    </div>
+    <div className='cameraPage'>
+     <div className="checkout-container">
+       <div className="summary-section">
+         <h2>Bus Ticket Summary</h2>
+         <Link to="/timetable" className="back-to-timetable">- Back to Timetable</Link>
+         {selectedBus && (
+           <table className="bus-details">
+             <tbody>
+               <tr><td><strong>Bus Number:</strong></td><td>{selectedBus.number}</td></tr>
+               <tr><td><strong>Route:</strong></td><td>{selectedBus.route}</td></tr>
+               <tr><td><strong>Departure:</strong></td><td>{selectedBus.departureTime} from {selectedBus.departureLocation}</td></tr>
+               <tr><td><strong>Arrival:</strong></td><td>{selectedBus.arrivalTime} at {selectedBus.arrivalLocation}</td></tr>
+               <tr><td><strong>Price:</strong></td><td>€{selectedBus.price}</td></tr>
+             </tbody>
+           </table>
+         )}
+       </div>
+       
+       <div className="camera-section">
+         <h2>Face Recognition</h2>
+         <div className="camera-wrapper">
+           <video ref={videoRef} autoPlay className="camera-feed"></video>
+           <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+         </div>
+         <p className="message">{message}</p>
+       </div>
+       
+       {user && (
+         <div className="payment-section">
+           <h2>Confirm Payment</h2>
+           <table className="user-info">
+             <tbody>
+               <tr><td><strong>👤 User:</strong></td><td>{user.userName}</td></tr>
+               <tr><td><strong>💳 Balance:</strong></td><td>€{user.balance}</td></tr>
+             </tbody>
+           </table>
+           <button className="confirm-btn" onClick={handleConfirmPayment}>Confirm Payment</button>
+         </div>
+       )}
+       <div className="button-group">
+         {!streamActive ? (
+           <button className="start-btn" onClick={startCamera}>Start Camera</button>
+         ) : (
+           <>
+             <button className="verify-btn" onClick={verifyFace}>Verify Face</button>
+             <button className="stop-btn" onClick={stopCamera}>Stop Camera</button>
+           </>
+         )}
+       </div>
+     </div>
+   </div>
   );
 };
 
