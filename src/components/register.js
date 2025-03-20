@@ -166,6 +166,9 @@ const Registration = () => {
           {loading ? "Processing..." : "Register"}
         </button>
       </form>
+      <p className="login-link">
+        Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Login now</Link>
+      </p>
     </div>
   );
 };

@@ -220,6 +220,36 @@ app.post('/api/verify-face', upload.single('image'), async (req, res) => {
   }
 });
 
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    // Validate password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      'your_jwt_secret',
+      { expiresIn: '1h' } // Token expires in 1 hour
+    );
+
+    res.json({ token, userId: user._id, name: user.name, email: user.email });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error during login' });
+  }
+});
+
 // Payment Processing Endpoint
 app.post('/pay-with-face', async (req, res) => {
   console.log('Request body:', req.body);

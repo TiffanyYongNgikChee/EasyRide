@@ -118,3 +118,18 @@
     border-radius: 10px;
   }
   
+  /* Login link styling */
+.login-link {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.login-link a {
+  color: #007BFF;
+  text-decoration: none;
+  transition: text-decoration 0.3s ease;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
