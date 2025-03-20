@@ -86,6 +86,7 @@ const Camera = () => {
     const paymentData = {
       userId: user.userId,
       ticketPrice: ticketPriceNum,
+      selectedBus, // Sending bus details too
     };
   
     console.log("Payment data being sent:", paymentData); // Log the payment data

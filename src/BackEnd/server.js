@@ -45,6 +45,18 @@ const TransactionSchema = new mongoose.Schema({
   time_stamp: { type: Date, default: Date.now },
 });
 
+const TripHistorySchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  bus_number: String,
+  route: String,
+  departure: String,
+  arrival: String,
+  price: Number,
+  timestamp: { type: Date, default: Date.now },
+});
+
+
+
 // Hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -56,6 +68,7 @@ userSchema.pre('save', async function (next) {
 
 const User = mongoose.model('User', userSchema);
 const Transaction = mongoose.model('Transaction', TransactionSchema);
+const TripHistory = mongoose.model('TripHistory', TripHistorySchema);
 
 // Set up multer for file upload
 const storage = multer.diskStorage({
@@ -212,10 +225,11 @@ app.post('/pay-with-face', async (req, res) => {
   console.log('Request body:', req.body);
 
   try {
-    const { userId, ticketPrice } = req.body; //  extracts the userId and ticketPrice from the body of the incoming request
-    if (!userId || !ticketPrice) {
-      console.log('Missing userId or ticketPrice');
-      return res.status(400).json({ message: 'Missing userId or ticketPrice' });
+    const { userId, ticketPrice, selectedBus } = req.body; // Extract bus details too
+
+    if (!userId || !ticketPrice || !selectedBus) {
+      console.log('Missing required fields');
+      return res.status(400).json({ message: 'Missing userId, ticketPrice, or selectedBus' });
     }
     // Ensure ticketPrice is a number
     const ticketPriceNum = parseFloat(ticketPrice);
@@ -256,6 +270,17 @@ app.post('/pay-with-face', async (req, res) => {
     });
     await transaction.save();
 
+    // ✅ Store Trip in Trip History
+    const trip = new TripHistory({
+      user_id: userId,
+      bus_number: selectedBus.number,
+      route: selectedBus.route,
+      departure: `${selectedBus.departureTime} from ${selectedBus.departureLocation}`,
+      arrival: `${selectedBus.arrivalTime} at ${selectedBus.arrivalLocation}`,
+      price: ticketPriceNum,
+    });
+    await trip.save();
+
     res.json({ success: true, remainingBalance: user.balance });
   } catch (error) {
     console.error("Error processing payment:", error);
@@ -283,6 +308,23 @@ app.get('/transactions', async (req, res) => {
     res.status(500).json({ message: 'Error retrieving transactions.' });
   }
 });
+
+// Get All Trip History
+app.get('/trip-history', async (req, res) => {
+  try {
+    const trips = await TripHistory.find().sort({ _id: -1 }); // Get latest trips first
+
+    if (trips.length === 0) {
+      return res.json({ message: "No trips found", trips: [] });
+    }
+
+    res.json({ trips });
+  } catch (error) {
+    console.error("Error fetching all trip history:", error);
+    res.status(500).json({ message: "Failed to fetch trip history", error: error.message });
+  }
+});
+
 
 // Start server
 app.listen(PORT, () => {

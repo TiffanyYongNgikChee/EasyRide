@@ -129,13 +129,6 @@ const BusTimetable = () => {
   const storedBuses = JSON.parse(localStorage.getItem("busTimetable")) || [];
   console.log(storedBuses); // Check the retrieved data
 
-  // Store bus timetable in localStorage
-  localStorage.setItem("busTimetable", JSON.stringify(buses));
-
-  // Retrieve bus timetable from localStorage
-  const storedBuses = JSON.parse(localStorage.getItem("busTimetable")) || [];
-  console.log(storedBuses); // Check the retrieved data
-
   // Function to handle ticket selection - The price field stores the price of the ticket for each bus.
   const handleSelectTicket = (bus) => {
     localStorage.setItem("selectedBus", JSON.stringify(bus)); // Store selected bus details
