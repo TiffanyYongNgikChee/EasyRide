@@ -267,10 +267,23 @@ const authenticateToken = (req, res, next) => {
 // Protected Dashboard Route
 app.get('/api/dashboard', authenticateToken, async (req, res) => {
   try {
-      const user = await User.findById(req.user.userId);
+      const user = await User.findById(req.user.userId).select("name email balance");
+
       if (!user) return res.status(404).json({ message: 'User not found' });
 
-      res.json({ message: `Hi ${user.name}, welcome to your dashboard!`, user });
+      // Fetch transaction history for the user
+      const transactions = await Transaction.find({ user_id: req.user.userId }).sort({ time_stamp: -1 });
+
+      // Fetch trip history for the user
+      const trips = await TripHistory.find({ user_id: req.user.userId }).sort({ timestamp: -1 });
+
+      res.json({
+          message: `Hi ${user.name}, welcome to your dashboard!`,
+          user,
+          transactions,
+          trips
+      });
+
   } catch (error) {
       console.error('Dashboard error:', error);
       res.status(500).json({ message: 'Server error' });
