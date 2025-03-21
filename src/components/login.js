@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React from "react";
 import '../css/Login.css';
 
-const Login = () => {
+const Login = ({ setToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -11,15 +11,24 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:4000/api/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data));
-      navigate("/dashboard"); // Redirect to dashboard after login
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+
+    const response = await fetch('http://localhost:4000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userName', data.userName);
+        setToken(data.token);  // Set token state for protected routes
+        navigate("/dashboard"); // Redirect to dashboard after login
+    } else {
+        setError(data.message);
     }
-  };
+};
 
   return (
     <div className="login-page-container">

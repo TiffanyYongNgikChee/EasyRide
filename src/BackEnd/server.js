@@ -250,6 +250,33 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// Middleware to Verify JWT
+const authenticateToken = (req, res, next) => {
+  const token = req.header('Authorization');
+  if (!token) return res.status(401).json({ message: 'Access denied' });
+
+  try {
+      const decoded = jwt.verify(token, 'your_jwt_secret');
+      req.user = decoded; // Store user info in request
+      next();
+  } catch (error) {
+      res.status(403).json({ message: 'Invalid token' });
+  }
+};
+
+// Protected Dashboard Route
+app.get('/api/dashboard', authenticateToken, async (req, res) => {
+  try {
+      const user = await User.findById(req.user.userId);
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      res.json({ message: `Hi ${user.name}, welcome to your dashboard!`, user });
+  } catch (error) {
+      console.error('Dashboard error:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Payment Processing Endpoint
 app.post('/pay-with-face', async (req, res) => {
   console.log('Request body:', req.body);
