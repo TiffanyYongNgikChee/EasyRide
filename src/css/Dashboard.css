@@ -1,33 +1,70 @@
-.dashboard-container {
-    max-width: 900px;
-    margin: auto;
-    text-align: center;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.7);
+/* Style for the wrapper to hold the sidebar and content */
+.dashboard-wrapper {
+    display: flex;
+}
+
+/* Sidebar styles */
+.dashboard-sidebar {
+    width: 200px;
+    background-color: #333;
     color: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+    height: 100vh;
+    padding-top: 20px;
+    position: fixed;
 }
 
-h1, h2, h3 {
-    margin-bottom: 10px;
+.dashboard-sidebar-item {
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
+.dashboard-sidebar-item:hover {
+    background-color: #575757;
+}
+
+/* Styles for the dashboard content */
+.dashboard-content {
+    margin-left: 220px; /* Adjust space for sidebar */
+    padding: 20px;
+    width: 100%;
+    background-color: #f4f4f4;
+}
+
+/* Specific styles for h2 in Dashboard */
+.dashboard-message {
+    color: #333;
+}
+
+/* Specific styles for table headers and content in Dashboard */
 .dashboard-table {
     width: 100%;
+    margin-top: 20px;
     border-collapse: collapse;
-    margin-top: 15px;
+}
+
+.dashboard-table, .dashboard-table th, .dashboard-table td {
+    border: 1px solid #ddd;
+    text-align: left;
 }
 
 .dashboard-table th, .dashboard-table td {
-    padding: 10px;
-    border: 1px solid white;
+    padding: 8px 12px;
 }
 
 .dashboard-table th {
-    background-color: #4CAF50;
+    background-color: #333;
+    color: white;
 }
 
-.dashboard-table tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.2);
+.dashboard-table td {
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for table headings in Dashboard */
+.dashboard-table-heading {
+    font-size: 1.2em;
+    color: #333;
+    margin-top: 30px;
 }
