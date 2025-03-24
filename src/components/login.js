@@ -22,6 +22,7 @@ const Login = ({ setToken }) => {
 
     if (response.ok) {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.userId);  // ✅ Store userId for later use
         localStorage.setItem('userName', data.userName);
         setToken(data.token);  // Set token state for protected routes
         navigate("/dashboard"); // Redirect to dashboard after login

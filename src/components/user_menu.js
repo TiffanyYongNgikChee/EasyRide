@@ -1,9 +1,15 @@
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import '../css/Header.css';
 
 const UserMenu = () => {
+  const navigate = useNavigate();
+
     return (
+    <div>
         <Navbar bg="dark" data-bs-theme="dark">
           <Container>
             <Nav className="me-auto">
@@ -13,6 +19,31 @@ const UserMenu = () => {
             </Nav>
           </Container>
       </Navbar>
+      <div className="header-container">
+      {/* Background Video */}
+      <video autoPlay loop muted className="header-video">
+        <source src="/videos/bus-bg.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      {/* Overlay Content */}
+      <div className="header-overlay">
+        <h1 className="header-title">Buy Tickets with Face Recognition</h1>
+        <p className="header-description">
+          Experience the future of bus travel—secure, fast, and hassle-free.
+        </p>
+        <div className="header-buttons">
+          <button onClick={() => navigate("/register")} className="header-btn">
+            Register Now
+          </button>
+          <button onClick={() => navigate("/timetable")} className="header-btn secondary">
+            View Bus Timetable
+          </button>
+        </div>
+      </div>
+    </div>
+    </div>
+      
   );
   };
   

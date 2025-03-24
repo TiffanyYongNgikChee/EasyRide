@@ -379,6 +379,32 @@ app.get('/transactions', async (req, res) => {
   }
 });
 
+// Top-up Endpoint
+app.post('/api/top-up', async (req, res) => {
+  try {
+    const { userId, amount } = req.body;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.balance += parseFloat(amount);
+    await user.save();
+
+    const transaction = new Transaction({
+      user_id: userId,
+      type: 'top-up',
+      amount: parseFloat(amount),
+      status: 'success',
+      time_stamp: new Date(),
+    });
+    await transaction.save();
+
+    res.json({ message: 'Top-up successful', newBalance: user.balance });
+  } catch (error) {
+    console.error('Top-up error:', error);
+    res.status(500).json({ message: 'Error processing top-up' });
+  }
+});
+
 // Get All Trip History
 app.get('/trip-history', async (req, res) => {
   try {

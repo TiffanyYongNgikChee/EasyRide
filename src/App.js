@@ -11,6 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./css/Register.css";
 import "./css/timetable.css";
 import Login from './components/login';
+import Wallet from './components/Wallet';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -34,6 +35,7 @@ function App() {
             element={token ? <Dashboard /> : <Navigate to="/login" />} 
         />
         <Route path="/camera" element={<Camera />} />
+        <Route path="/wallet" element={<Wallet />} />
         <Route path="/history" element={<History />} />
       </Routes>
     </Router>
