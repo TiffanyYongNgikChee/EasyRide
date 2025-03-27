@@ -12,6 +12,7 @@ import "./css/Register.css";
 import "./css/timetable.css";
 import Login from './components/login';
 import Wallet from './components/Wallet';
+import SearchComponent from './components/SearchTimetable';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -37,6 +38,7 @@ function App() {
         <Route path="/camera" element={<Camera />} />
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/history" element={<History />} />
+        <Route path="/Search" element={<SearchComponent />} />
       </Routes>
     </Router>
   );
