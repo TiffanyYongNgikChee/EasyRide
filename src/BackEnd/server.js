@@ -55,7 +55,38 @@ const TripHistorySchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
+// New GTFS Models
+const Route = mongoose.model("Route", new mongoose.Schema({
+  route_id: String,
+  route_short_name: String,
+  route_long_name: String
+}));
 
+const Stop = mongoose.model("Stop", new mongoose.Schema({
+  stop_id: String,
+  stop_name: String,
+  stop_lat: Number,
+  stop_lon: Number
+}));
+
+// New API Endpoints for GTFS
+app.get("/api/gtfs/routes", async (req, res) => {
+  try {
+    const routes = await Route.find();
+    res.json(routes);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch routes" });
+  }
+});
+
+app.get("/api/gtfs/stops", async (req, res) => {
+  try {
+    const stops = await Stop.find();
+    res.json(stops);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch stops" });
+  }
+});
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
