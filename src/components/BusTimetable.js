@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import BusMap from "./BusMap";
 
 const BusTimetable = () => {
   const navigate = useNavigate(); // Initialize navigation hook
@@ -172,6 +173,7 @@ const BusTimetable = () => {
           </div>
         </div>
       ))}
+      <BusMap/>
     </div>
   );
 };

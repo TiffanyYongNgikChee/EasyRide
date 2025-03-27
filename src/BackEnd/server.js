@@ -66,8 +66,10 @@ const Stop = mongoose.model("Stop", new mongoose.Schema({
   stop_id: String,
   stop_name: String,
   stop_lat: Number,
-  stop_lon: Number
+  stop_lon: Number,
+  routes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Route' }] // Array of routes serving this stop
 }));
+
 
 // New API Endpoints for GTFS
 app.get("/api/gtfs/routes", async (req, res) => {
@@ -85,6 +87,44 @@ app.get("/api/gtfs/stops", async (req, res) => {
     res.json(stops);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch stops" });
+  }
+});
+
+app.get("/api/gtfs/search", async (req, res) => {
+  try {
+    const searchTerm = req.query.q;
+    
+    // Search stops
+    const stops = await Stop.find({ 
+      stop_name: { $regex: searchTerm, $options: 'i' } 
+    });
+    
+    // Search routes
+    const routes = await Route.find({
+      $or: [
+        { route_long_name: { $regex: searchTerm, $options: 'i' } },
+        { route_short_name: { $regex: searchTerm, $options: 'i' } }
+      ]
+    });
+    
+    // Process results
+    const results = {
+      stops: stops.map(stop => ({
+        id: stop._id,
+        name: stop.stop_name,
+        type: 'stop'
+      })),
+      routes: routes.map(route => ({
+        id: route._id,
+        name: route.route_long_name,
+        shortName: route.route_short_name,
+        type: 'route'
+      }))
+    };
+    
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: "Search failed" });
   }
 });
 
