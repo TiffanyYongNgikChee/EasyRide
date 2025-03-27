@@ -93,28 +93,54 @@ app.get("/api/gtfs/search", async (req, res) => {
   try {
     const searchTerm = req.query.q;
 
-    // Search routes
+    // 1. Find matching routes
     const routes = await Route.find({
       $or: [
         { route_long_name: { $regex: searchTerm, $options: 'i' } },
         { route_short_name: { $regex: searchTerm, $options: 'i' } }
       ]
     });
-    
-    // Process results
-    const results = {
-      routes: routes.map(route => ({
-        id: route._id,
-        route_id: route.route_id,
-        name: route.route_long_name,
-        shortName: route.route_short_name,
-        type: 'route'
-      }))
-    };
-    
-    res.json(results);
+
+    // 2. Process each route
+    const routesWithPath = await Promise.all(
+      routes.map(async (route) => {
+        // Extract location names from route_long_name (e.g., "Galway → Limerick → Cork")
+        const locationNames = route.route_long_name.split(/ - | → | to /i);
+
+        // Geocode each location
+        const path = [];
+        for (const name of locationNames) {
+          try {
+            const response = await axios.get(
+              `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(name.trim())}&key=AIzaSyAjjR0-3zkTPmljMueREFtfZjl-Kr-bs6A`
+            );
+            if (response.data.results[0]) {
+              path.push({
+                name: name.trim(),
+                lat: response.data.results[0].geometry.location.lat,
+                lng: response.data.results[0].geometry.location.lng
+              });
+            }
+          } catch (err) {
+            console.error(`Geocoding failed for "${name}":`, err.message);
+          }
+        }
+
+        return {
+          id: route._id,
+          route_id: route.route_id,
+          name: route.route_long_name,
+          shortName: route.route_short_name,
+          type: 'route',
+          path // Array of {name, lat, lng}
+        };
+      })
+    );
+
+    res.json({ routes: routesWithPath });
   } catch (err) {
-    res.status(500).json({ error: "Search failed" });
+    console.error("Search error:", err);
+    res.status(500).json({ error: "Search failed", details: err.message });
   }
 });
 

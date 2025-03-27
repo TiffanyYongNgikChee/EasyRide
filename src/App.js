@@ -14,6 +14,7 @@ import Login from './components/login';
 import Wallet from './components/Wallet';
 import SearchComponent from './components/SearchTimetable';
 
+
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
