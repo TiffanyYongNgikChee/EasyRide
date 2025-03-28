@@ -41,6 +41,18 @@ const RouteCard = ({ route }) => {
 
   }, [route]);
 
+  const handleBuyTicket = () => {
+    // Store route information in localStorage
+    localStorage.setItem('selectedRoute', JSON.stringify({
+      route_id: route.route_id,
+      route_long_name: route.name,
+      route_short_name: route.shortName,
+      path: route.path
+    }));
+    console.log('Ticket booked for route:', route.route_id);
+    alert(`Ticket for ${route.shortName} - ${route.name} has been added to your booking!`);
+  };
+    
   return (
     <div className="route-card">
       <h3>{route.shortName} - {route.name}</h3>
@@ -55,6 +67,12 @@ const RouteCard = ({ route }) => {
           </div>
         ))}
       </div>
+      <button 
+        className="buy-ticket-btn"
+        onClick={handleBuyTicket}
+      >
+        Buy Ticket
+      </button>
     </div>
   );
 };
