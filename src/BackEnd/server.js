@@ -46,13 +46,16 @@ const TransactionSchema = new mongoose.Schema({
 });
 
 const TripHistorySchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  bus_number: String,
-  route: String,
-  departure: String,
-  arrival: String,
-  price: Number,
-  timestamp: { type: Date, default: Date.now },
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  route_id: { type: String, required: true },
+  route_long_name: { type: String, required: true },
+  route_short_name: { type: String, required: true },
+  price: { type: Number, required: true },
+  purchase_time: { type: Date, default: Date.now },
+  status: { type: String, enum: ['unused', 'used'], default: 'unused' },
+  // Optional fields
+  stops: String,
+  used_time: Date
 });
 
 // New GTFS Models
@@ -377,24 +380,25 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
   }
 });
 
-// Payment Processing Endpoint
+// Payment Processing Endpoint// Payment Processing Endpoint
 app.post('/pay-with-face', async (req, res) => {
   console.log('Request body:', req.body);
 
   try {
-    const { userId, ticketPrice, selectedBus } = req.body; // Extract bus details too
+    const { userId, ticketPrice, routeDetails } = req.body;
 
-    if (!userId || !ticketPrice || !selectedBus) {
+    // Validation (unchanged)
+    if (!userId || !ticketPrice || !routeDetails) {
       console.log('Missing required fields');
-      return res.status(400).json({ message: 'Missing userId, ticketPrice, or selectedBus' });
+      return res.status(400).json({ message: 'Missing userId, ticketPrice, or routeDetails' });
     }
-    // Ensure ticketPrice is a number
+
     const ticketPriceNum = parseFloat(ticketPrice);
     if (isNaN(ticketPriceNum)) {
       return res.status(400).json({ message: 'Invalid ticket price' });
     }
-    const user = await User.findById(userId); // Finding the User in the Database
 
+    const user = await User.findById(userId);
     if (!user) {
       console.log('User not found for userId:', userId);
       return res.status(404).json({ message: 'User not found' });
@@ -402,20 +406,19 @@ app.post('/pay-with-face', async (req, res) => {
 
     console.log(`User found. Balance: €${user.balance}, Ticket Price: €${ticketPriceNum}`);
 
+    // Transaction handling (unchanged)
     if (user.balance < ticketPriceNum) {
-      // Log the failed transaction with 'failure' status
       const transaction = new Transaction({
         user_id: userId,
         type: 'deduction',
         amount: ticketPriceNum,
-        status: 'failure', // Transaction failed due to insufficient balance
+        status: 'failure',
       });
       await transaction.save();
 
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
-    // Deduct balance & create transaction on success
     user.balance -= ticketPriceNum;
     await user.save();
 
@@ -423,28 +426,35 @@ app.post('/pay-with-face', async (req, res) => {
       user_id: userId,
       type: 'deduction',
       amount: ticketPriceNum,
-      status: 'success', // Transaction was successful
+      status: 'success',
     });
     await transaction.save();
 
-    // ✅ Store Trip in Trip History
+    // NEW: Trip History based on localStorage data
     const trip = new TripHistory({
       user_id: userId,
-      bus_number: selectedBus.number,
-      route: selectedBus.route,
-      departure: `${selectedBus.departureTime} from ${selectedBus.departureLocation}`,
-      arrival: `${selectedBus.arrivalTime} at ${selectedBus.arrivalLocation}`,
+      route_id: routeDetails.route_id,
+      route_long_name: routeDetails.route_long_name,
+      route_short_name: routeDetails.route_short_name,
       price: ticketPriceNum,
+      purchase_time: new Date(), // Current timestamp
+      status: 'unused', // Default status
+      // Optional: You can add these if available
+      stops: routeDetails.path ? routeDetails.path.map(p => p.name).join(' → ') : null
     });
     await trip.save();
 
-    res.json({ success: true, remainingBalance: user.balance });
+    res.json({ 
+      success: true, 
+      remainingBalance: user.balance,
+      tripId: trip._id // Return the trip ID for reference
+    });
+
   } catch (error) {
     console.error("Error processing payment:", error);
     res.status(500).json({ message: 'Payment processing failed', error: error.message });
   }
 });
-
 // Define the route to get all transactions
 app.get('/transactions', async (req, res) => {
   try {

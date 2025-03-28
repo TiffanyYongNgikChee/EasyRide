@@ -124,7 +124,7 @@ const Payment= () => {
             <table className="bus-details">
               <tbody>
                 <tr><td><strong>Route Number:</strong></td><td>{selectedRoute.route_short_name}</td></tr>
-                <tr><td><strong>Route Name:</strong></td><td>{selectedRoute.name}</td></tr>
+                <tr><td><strong>Route Name:</strong></td><td>{selectedRoute.route_id}</td></tr>
                 <tr><td><strong>Stops:</strong></td><td>
                   {selectedRoute.path?.map((point, index) => (
                     <span key={index}>
