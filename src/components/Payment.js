@@ -78,10 +78,15 @@ const Payment= () => {
     if (!user || !selectedRoute) return;
 
     const paymentData = {
-      userId: user.userId,
-      ticketPrice: ticketPrice,
-      routeDetails: selectedRoute,
-    };
+        userId: user.userId,
+        ticketPrice: 2.50, // Fixed price
+        routeDetails: {
+          route_id: selectedRoute.route_id,
+          route_long_name: selectedRoute.route_long_name || selectedRoute.name,
+          route_short_name: selectedRoute.route_short_name || selectedRoute.shortName,
+          path: selectedRoute.path // Include if available
+        }
+      };
   
     try {
       const paymentResponse = await axios.post("http://localhost:4000/pay-with-face", paymentData);
