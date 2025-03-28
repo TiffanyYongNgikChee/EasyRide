@@ -13,6 +13,7 @@ import "./css/timetable.css";
 import Login from './components/login';
 import Wallet from './components/Wallet';
 import SearchComponent from './components/SearchTimetable';
+import Payment from './components/Payment';
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/history" element={<History />} />
         <Route path="/Search" element={<SearchComponent />} />
+        <Route path="/payment" element={<Payment />} />
       </Routes>
     </Router>
   );

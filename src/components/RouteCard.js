@@ -1,9 +1,11 @@
 import React from 'react';
 import '../css/SearchTable.css';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import { useEffect,useRef } from 'react';
 
 const RouteCard = ({ route }) => {
   const mapRef = useRef(null);
+  const navigate = useNavigate(); // Initialize the navigate function
 
   useEffect(() => {
     if (!route.path || route.path.length === 0 || !window.google) return;
@@ -47,10 +49,12 @@ const RouteCard = ({ route }) => {
       route_id: route.route_id,
       route_long_name: route.name,
       route_short_name: route.shortName,
-      path: route.path
+      path: route.path,
+      price: 2.50 // Adding fixed price for the payment page
     }));
-    console.log('Ticket booked for route:', route.route_id);
-    alert(`Ticket for ${route.shortName} - ${route.name} has been added to your booking!`);
+    
+    // Navigate to payment page
+    navigate('/payment');
   };
     
   return (
