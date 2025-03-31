@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import RouteCard from './RouteCard';
 import '../css/SearchTable.css';
+import { FaSearch, FaBus, FaMapMarkerAlt, FaTicketAlt } from 'react-icons/fa';
 
 const SearchComponent = () => {
   const [query, setQuery] = useState('');
@@ -48,39 +49,74 @@ const SearchComponent = () => {
 
   return (
     <div className="search-container">
-      <h1>Bus Route Finder</h1>
+      <div className="search-header">
+        <FaBus className="header-icon" />
+        <h1>Bus Route Finder</h1>
+        <p>Find and book your bus tickets in seconds</p>
+      </div>
       
-      <div className="search-box">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Search for a route (e.g., Galway)"
-          disabled={isLoading}
-        />
-        <button 
-          onClick={handleSearch}
-          disabled={isLoading || !query.trim()}
-        >
-          {isLoading ? 'Searching...' : 'Search'}
-        </button>
+      <div className="search-box-container">
+        <div className="search-box">
+          <div className="search-input-wrapper">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Search for a route or destination (e.g., Galway)"
+              disabled={isLoading}
+            />
+          </div>
+          <button 
+            onClick={handleSearch}
+            disabled={isLoading || !query.trim()}
+            className={`search-button ${isLoading ? 'loading' : ''}`}
+          >
+            {isLoading ? (
+              <>
+                <span className="spinner"></span>
+                Searching...
+              </>
+            ) : (
+              <>
+                <FaSearch className="button-icon" />
+                Search
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          <FaMapMarkerAlt className="error-icon" />
+          {error}
+        </div>
+      )}
 
       <div className="results-container">
-        {isLoading && <p>Loading routes...</p>}
+        {isLoading && (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Finding available routes...</p>
+          </div>
+        )}
         
         {routes.length > 0 && (
           <div className="route-list">
-            <h2>Found {routes.length} routes:</h2>
-            {routes.map(route => (
-              <RouteCard 
-                key={route.route_id} 
-                route={route} 
-              />
-            ))}
+            <h2>
+              <FaBus className="results-icon" />
+              Found {routes.length} {routes.length === 1 ? 'route' : 'routes'}
+            </h2>
+            <div className="route-grid">
+              {routes.map(route => (
+                <RouteCard 
+                  key={route.route_id} 
+                  route={route} 
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>

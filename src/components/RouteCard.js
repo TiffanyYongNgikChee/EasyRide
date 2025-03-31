@@ -58,24 +58,45 @@ const RouteCard = ({ route }) => {
   };
     
   return (
-    <div className="route-card">
-      <h3>{route.shortName} - {route.name}</h3>
+    <div className="route-card-container">
+      <div className="route-card-header">
+        <span className="route-number-badge">{route.shortName}</span>
+        <h3 className="route-card-title">{route.name}</h3>
+      </div>
       <div 
         ref={mapRef} 
         style={{ height: '200px', width: '100%', marginTop: '10px' }} 
       />
-      <div className="route-path">
-        {route.path?.map((point, index) => (
-          <div key={index} className="path-point">
-            <strong>{String.fromCharCode(65 + index)}:</strong> {point.name}
-          </div>
-        ))}
+      <div className="route-card-path">
+        <div className="route-path-summary">
+          <span className="path-start-point">
+            <span className="path-marker">A</span>
+            {route.path[0]?.name || 'Start'}
+          </span>
+          <span className="path-arrow">→</span>
+          <span className="path-end-point">
+            <span className="path-marker">
+              {String.fromCharCode(65 + (route.path.length - 1))}
+            </span>
+            {route.path[route.path.length - 1]?.name || 'End'}
+          </span>
+        </div>
+        
+        <div className="route-full-path">
+          {route.path?.map((point, index) => (
+            <div key={index} className="route-path-point">
+              <span className="path-point-marker">{String.fromCharCode(65 + index)}</span>
+              <span className="path-point-name">{point.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
+      
       <button 
-        className="buy-ticket-btn"
+        className="route-card-button"
         onClick={handleBuyTicket}
       >
-        Buy Ticket
+        Book This Route - €2.50
       </button>
     </div>
   );
