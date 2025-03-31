@@ -40,7 +40,7 @@ const Dashboard = () => {
                 <div className="dashboard-sidebar-item" onClick={() => navigate('/wallet')}>
                     Wallet
                 </div>
-                <div className="dashboard-sidebar-item" onClick={() => navigate('/timetable')}>
+                <div className="dashboard-sidebar-item" onClick={() => navigate('/search')}>
                     Buy Ticket
                 </div>
                 <div className="dashboard-sidebar-item" onClick={() => navigate('/profile')}>
