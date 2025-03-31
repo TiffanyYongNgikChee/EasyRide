@@ -85,24 +85,24 @@ const Dashboard = () => {
                 <table className="dashboard-table" border="1">
                     <thead>
                         <tr>
-                            <th>Bus Number</th>
-                            <th>Route</th>
-                            <th>Departure</th>
-                            <th>Arrival</th>
+                            <th>Bus Route</th>
+                            <th>Route Name</th>
+                            <th>Stops</th>
                             <th>Price</th>
-                            <th>Timestamp</th>
+                            <th>Status</th>
+                            <th>Purchase Time</th>
                         </tr>
                     </thead>
                     <tbody>
                         {trips.length > 0 ? (
                             trips.map((trip) => (
                                 <tr key={trip._id}>
-                                    <td>{trip.bus_number}</td>
-                                    <td>{trip.route}</td>
-                                    <td>{trip.departure}</td>
-                                    <td>{trip.arrival}</td>
+                                    <td>{trip.route_short_name}</td>
+                                    <td>{trip.route_long_name}</td>
+                                    <td>{trip.stops || 'N/A'}</td>
                                     <td>${trip.price}</td>
-                                    <td>{new Date(trip.timestamp).toLocaleString()}</td>
+                                    <td>{trip.status}</td>
+                                    <td>{new Date(trip.purchase_time).toLocaleString()}</td>
                                 </tr>
                             ))
                         ) : (

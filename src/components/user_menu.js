@@ -15,7 +15,7 @@ const UserMenu = () => {
             <Nav className="me-auto">
               <Nav.Link href="/register">Register</Nav.Link>
               <Nav.Link href="/login">Login</Nav.Link>
-              <Nav.Link href="/timetable">Timetable</Nav.Link>
+              <Nav.Link href="/search">Timetable</Nav.Link>
             </Nav>
           </Container>
       </Navbar>
@@ -36,7 +36,7 @@ const UserMenu = () => {
           <button onClick={() => navigate("/register")} className="header-btn">
             Register Now
           </button>
-          <button onClick={() => navigate("/timetable")} className="header-btn secondary">
+          <button onClick={() => navigate("/search")} className="header-btn secondary">
             View Bus Timetable
           </button>
         </div>

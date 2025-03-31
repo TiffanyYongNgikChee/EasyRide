@@ -518,7 +518,6 @@ app.get('/trip-history', async (req, res) => {
   }
 });
 
-
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
