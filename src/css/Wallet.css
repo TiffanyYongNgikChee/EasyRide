@@ -1,0 +1,156 @@
+/* Light Blue Theme */
+:root {
+    --primary-light: #e6f2ff;
+    --primary-main: #4a90e2;
+    --primary-dark: #2a6ec6;
+  }
+  
+  .wallet-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  /* Balance Card */
+  .balance-card-light {
+    background: linear-gradient(135deg, var(--primary-light), white);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+    border: 1px solid rgba(74, 144, 226, 0.2);
+  }
+  
+  .balance-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-dark);
+    margin-bottom: 15px;
+  }
+  
+  .wallet-icon {
+    font-size: 24px;
+  }
+  
+  .balance-amount {
+    font-size: 36px;
+    margin: 10px 0;
+    color: var(--primary-dark);
+  }
+  
+  .balance-wave-light {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 100px;
+    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="rgba(74,144,226,0.08)"/></svg>');
+    animation: wave 10s linear infinite;
+  }
+  
+  /* Amount Grid */
+  .amount-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 25px 0;
+  }
+  
+  .amount-option {
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .amount-option:hover .amount-bubble {
+    transform: translateY(-3px);
+  }
+  
+  .amount-bubble {
+    background: white;
+    border: 2px solid var(--primary-main);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    transition: all 0.3s;
+  }
+  
+  .amount-option.active .amount-bubble {
+    background: var(--primary-main);
+    color: white;
+  }
+  
+  .amount-value {
+    font-size: 22px;
+    font-weight: bold;
+  }
+  
+  .amount-label {
+    display: block;
+    text-align: center;
+    color: var(--primary-dark);
+    font-size: 14px;
+  }
+  
+  /* Button */
+  .topup-btn-light {
+    background: var(--primary-main);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .topup-btn-light:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .topup-btn-light:hover:not(:disabled) {
+    background: var(--primary-dark);
+  }
+  
+  /* Spinner */
+  .spinner-light {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Privacy Notice */
+  .privacy-notice {
+    text-align: center;
+    margin-top: 25px;
+    color: #666;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .lock-icon {
+    font-size: 16px;
+  }

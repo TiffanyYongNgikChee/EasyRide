@@ -1,12 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import '../css/Wallet.css';
 
 const Wallet = () => {
   const [amount, setAmount] = useState(0);
-  const [balance, setBalance] = useState(localStorage.getItem("balance") || 0);
+  // Convert balance to number when initializing
+  const [balance, setBalance] = useState(() => {
+    const savedBalance = localStorage.getItem("balance");
+    return savedBalance ? Number(savedBalance) : 0;
+  });
+  const [activeMethod, setActiveMethod] = useState("card");
+  const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
   const userId = localStorage.getItem("userId");  // ✅ Get userId from localStorage
 
-  const handleTopUp = async () => {
+  // Parsed amounts with visual indicators
+  const amountOptions = [
+    { value: 5, label: "Quick €5" },
+    { value: 10, label: "Standard €10" }, 
+    { value: 20, label: "Boost €20" },
+    { value: 50, label: "Max €50" }
+  ];
+
+  const handleTopUp = async (selectedAmount) => {
+
+    setAmount(selectedAmount);
+    setIsProcessing(true);
+
     if (!userId) {
       setMessage("Error: User not logged in!");
       return;
@@ -37,20 +56,62 @@ const Wallet = () => {
       console.error("Error topping up:", error);
       setMessage("Server error. Please try again later.");
     }
+    setTimeout(() => {
+      const newBalance = balance + selectedAmount;
+      setBalance(newBalance);
+      setIsProcessing(false);
+      new Audio('/sounds/Successfully.mp3').play();
+    }, 1000);
   };
 
   return (
-    <div>
-      <h2>Top-Up Balance</h2>
-      <p>Current Balance: ${balance}</p>
-      <input
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        placeholder="Enter amount"
-      />
-      <button onClick={handleTopUp}>Top Up</button>
-      {message && <p>{message}</p>}
+    <div className="wallet-container">
+      {/* Balance Card */}
+      <div className="balance-card-light">
+        <div className="balance-header">
+          <span className="wallet-icon">💳</span>
+          <h3>Travel Wallet</h3>
+        </div>
+        <h1 className="balance-amount">€{balance.toFixed(2)}</h1>
+        <div className="balance-wave-light"></div>
+      </div>
+
+      {/* Amount Selection - Parsed List */}
+      <div className="amount-grid">
+        {amountOptions.map((option) => (
+          <div 
+            key={option.value}
+            className={`amount-option ${amount === option.value ? "active" : ""}`}
+            onClick={() => handleTopUp(option.value)}
+          >
+            <div className="amount-bubble">
+              <span className="amount-value">€{option.value}</span>
+            </div>
+            <span className="amount-label">{option.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Action Button */}
+      <button 
+        className={`topup-btn-light ${isProcessing ? "processing" : ""}`}
+        disabled={amount === 0 || isProcessing}
+      >
+        {isProcessing ? (
+          <>
+            <div className="spinner-light"></div>
+            Adding €{amount}...
+          </>
+        ) : (
+          `Confirm Top-Up €${amount > 0 ? amount : ""}`
+        )}
+      </button>
+
+      {/* Privacy Notice */}
+      <div className="privacy-notice">
+        <span className="lock-icon">🔒</span>
+        No payment details required - Demo mode only
+      </div>
     </div>
   );
 };

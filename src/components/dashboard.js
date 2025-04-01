@@ -37,7 +37,12 @@ const Dashboard = () => {
                 <div className="dashboard-sidebar-item" onClick={() => navigate('/dashboard')}>
                     Dashboard
                 </div>
-                <div className="dashboard-sidebar-item" onClick={() => navigate('/wallet')}>
+                <div
+                    className="dashboard-sidebar-item"
+                    onClick={() => {
+                        localStorage.setItem('balance', user.balance);
+                        navigate('/wallet');
+                    }}>
                     Wallet
                 </div>
                 <div className="dashboard-sidebar-item" onClick={() => navigate('/search')}>
