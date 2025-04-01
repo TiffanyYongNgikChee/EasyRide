@@ -8,7 +8,7 @@ const Wallet = () => {
     const savedBalance = localStorage.getItem("balance");
     return savedBalance ? Number(savedBalance) : 0;
   });
-  const [activeMethod, setActiveMethod] = useState("card");
+  const [activeMethod, setActiveMethod] = useState("quick");
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
   const userId = localStorage.getItem("userId");  // ✅ Get userId from localStorage
