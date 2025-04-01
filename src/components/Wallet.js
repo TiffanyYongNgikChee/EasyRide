@@ -95,7 +95,6 @@ const Wallet = () => {
               className={`amount-card ${amount === option.value ? "selected" : ""}`}
               onClick={() => handleTopUp(option.value)}
             >
-              <span className="amount-emoji">{option.emoji}</span>
               <span className="amount-value">€{option.value}</span>
               <span className="amount-label">{option.label}</span>
             </div>
