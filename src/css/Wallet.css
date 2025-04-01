@@ -1,156 +1,180 @@
-/* Light Blue Theme */
-:root {
-    --primary-light: #e6f2ff;
-    --primary-main: #4a90e2;
-    --primary-dark: #2a6ec6;
+/* Base Styles */
+.wallet-website {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
-  .wallet-container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Segoe UI', sans-serif;
+  .wallet-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .wallet-header h1 {
+    color: #2a6ec6;
+    margin-bottom: 0.5rem;
+  }
+  
+  .wallet-header p {
+    color: #666;
   }
   
   /* Balance Card */
-  .balance-card-light {
-    background: linear-gradient(135deg, var(--primary-light), white);
-    border-radius: 16px;
-    padding: 25px;
+  .balance-card {
+    background: linear-gradient(135deg, #e6f2ff, #f0f7ff);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
     box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 30px;
-    border: 1px solid rgba(74, 144, 226, 0.2);
   }
   
-  .balance-header {
+  .balance-info {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: var(--primary-dark);
-    margin-bottom: 15px;
+    gap: 1rem;
   }
   
-  .wallet-icon {
-    font-size: 24px;
+  .wallet-emoji {
+    font-size: 2rem;
+  }
+  
+  .balance-label {
+    color: #555;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
   }
   
   .balance-amount {
-    font-size: 36px;
-    margin: 10px 0;
-    color: var(--primary-dark);
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2a6ec6;
+    margin: 0;
   }
   
-  .balance-wave-light {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 200%;
-    height: 100px;
-    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="rgba(74,144,226,0.08)"/></svg>');
-    animation: wave 10s linear infinite;
+  /* Amount Selection */
+  .amount-selection {
+    margin-bottom: 2rem;
   }
   
-  /* Amount Grid */
-  .amount-grid {
+  .amount-selection h3 {
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .amount-options {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin: 25px 0;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
   }
   
-  .amount-option {
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  
-  .amount-option:hover .amount-bubble {
-    transform: translateY(-3px);
-  }
-  
-  .amount-bubble {
+  .amount-card {
     background: white;
-    border: 2px solid var(--primary-main);
-    border-radius: 50%;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 8px;
-    transition: all 0.3s;
+    border: 1px solid #e1e8f0;
+    border-radius: 8px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
   
-  .amount-option.active .amount-bubble {
-    background: var(--primary-main);
-    color: white;
+  .amount-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(74, 144, 226, 0.1);
+  }
+  
+  .amount-card.selected {
+    border-color: #4a90e2;
+    background-color: #f0f7ff;
+  }
+  
+  .amount-emoji {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
   }
   
   .amount-value {
-    font-size: 22px;
+    font-size: 1.25rem;
     font-weight: bold;
+    color: #2a6ec6;
+    display: block;
   }
   
   .amount-label {
+    font-size: 0.8rem;
+    color: #666;
     display: block;
-    text-align: center;
-    color: var(--primary-dark);
-    font-size: 14px;
+    margin-top: 0.25rem;
   }
   
-  /* Button */
-  .topup-btn-light {
-    background: var(--primary-main);
+  /* Action Area */
+  .action-area {
+    text-align: center;
+  }
+  
+  .confirm-btn {
+    background-color: #4a90e2;
     color: white;
     border: none;
-    padding: 15px;
-    border-radius: 12px;
-    width: 100%;
-    font-size: 16px;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
     font-weight: 600;
-    margin-top: 20px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: background-color 0.2s;
+    width: 100%;
+    max-width: 300px;
   }
   
-  .topup-btn-light:disabled {
-    background: #ccc;
+  .confirm-btn:hover:not(:disabled) {
+    background-color: #2a6ec6;
+  }
+  
+  .confirm-btn:disabled {
+    background-color: #ccc;
     cursor: not-allowed;
   }
   
-  .topup-btn-light:hover:not(:disabled) {
-    background: var(--primary-dark);
+  .confirm-btn.processing {
+    background-color: #2a6ec6;
   }
   
-  /* Spinner */
-  .spinner-light {
-    width: 18px;
-    height: 18px;
-    border: 3px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
+  .spinner {
     display: inline-block;
-    margin-right: 10px;
-    animation: spin 1s linear infinite;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 0.5rem;
   }
   
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
   
-  /* Privacy Notice */
-  .privacy-notice {
+  .message {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  /* Footer */
+  .wallet-footer {
     text-align: center;
-    margin-top: 25px;
+    margin-top: 2rem;
     color: #666;
-    font-size: 13px;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 0.5rem;
   }
   
   .lock-icon {
-    font-size: 16px;
+    font-size: 1rem;
   }

@@ -65,54 +65,70 @@ const Wallet = () => {
   };
 
   return (
-    <div className="wallet-container">
+    <div className="wallet-website">
+    {/* Header Section */}
+    <header className="wallet-header">
+      <h1>Travel Wallet</h1>
+      <p>Top up your balance for seamless bus travel</p>
+    </header>
+
+    {/* Main Content */}
+    <main className="wallet-main">
       {/* Balance Card */}
-      <div className="balance-card-light">
-        <div className="balance-header">
-          <span className="wallet-icon">💳</span>
-          <h3>Travel Wallet</h3>
-        </div>
-        <h1 className="balance-amount">€{balance.toFixed(2)}</h1>
-        <div className="balance-wave-light"></div>
-      </div>
-
-      {/* Amount Selection - Parsed List */}
-      <div className="amount-grid">
-        {amountOptions.map((option) => (
-          <div 
-            key={option.value}
-            className={`amount-option ${amount === option.value ? "active" : ""}`}
-            onClick={() => handleTopUp(option.value)}
-          >
-            <div className="amount-bubble">
-              <span className="amount-value">€{option.value}</span>
-            </div>
-            <span className="amount-label">{option.label}</span>
+      <div className="balance-card">
+        <div className="balance-info">
+          <span className="wallet-emoji">💳</span>
+          <div>
+            <p className="balance-label">Available Balance</p>
+            <p className="balance-amount">€{balance.toFixed(2)}</p>
           </div>
-        ))}
+        </div>
       </div>
 
-      {/* Action Button */}
-      <button 
-        className={`topup-btn-light ${isProcessing ? "processing" : ""}`}
-        disabled={amount === 0 || isProcessing}
-      >
-        {isProcessing ? (
-          <>
-            <div className="spinner-light"></div>
-            Adding €{amount}...
-          </>
-        ) : (
-          `Confirm Top-Up €${amount > 0 ? amount : ""}`
-        )}
-      </button>
-
-      {/* Privacy Notice */}
-      <div className="privacy-notice">
-        <span className="lock-icon">🔒</span>
-        No payment details required - Demo mode only
+      {/* Amount Selection */}
+      <div className="amount-selection">
+        <h3>Select Top-Up Amount</h3>
+        <div className="amount-options">
+          {amountOptions.map((option) => (
+            <div
+              key={option.value}
+              className={`amount-card ${amount === option.value ? "selected" : ""}`}
+              onClick={() => handleTopUp(option.value)}
+            >
+              <span className="amount-emoji">{option.emoji}</span>
+              <span className="amount-value">€{option.value}</span>
+              <span className="amount-label">{option.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* Action Area */}
+      <div className="action-area">
+        <button
+          className={`confirm-btn ${isProcessing ? "processing" : ""}`}
+          disabled={amount === 0 || isProcessing}
+        >
+          {isProcessing ? (
+            <>
+              <span className="spinner"></span>
+              Processing...
+            </>
+          ) : (
+            `Add €${amount} to Wallet`
+          )}
+        </button>
+        
+        {message && <div className="message">{message}</div>}
+      </div>
+    </main>
+
+    {/* Footer Note */}
+    <footer className="wallet-footer">
+      <span className="lock-icon">🔒</span>
+      <span>Demo mode - No real payments required</span>
+    </footer>
+  </div>
   );
 };
 
