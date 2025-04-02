@@ -2,15 +2,19 @@ import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
 import '../css/Camera.css';
 import { Link } from 'react-router-dom';
+import { FaArrowLeft, FaCamera, FaUser, FaWallet, FaBusAlt, FaRoute, FaMoneyBillWave, FaCheckCircle } from 'react-icons/fa';
 
 const Payment= () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
   const [streamActive, setStreamActive] = useState(false);
   const [user, setUser] = useState(null);
   const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const ticketPrice = 2.50; // Fixed ticket price for all routes
 
   useEffect(() => {
@@ -26,9 +30,12 @@ const Payment= () => {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       videoRef.current.srcObject = stream;
       setStreamActive(true);
+      setMessage('');
+      setMessageType('');
     } catch (err) {
       console.error("Camera access error:", err);
-      setMessage("Camera access failed. Check permissions.");
+      setMessage("Camera access failed. Please check permissions.");
+      setMessageType('error');
     }
   };
 
@@ -42,6 +49,10 @@ const Payment= () => {
 
   const verifyFace = async () => {
     if (!streamActive) return;
+    
+    setIsVerifying(true);
+    setMessage('Verifying face...');
+    setMessageType('info');
     
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -61,54 +72,69 @@ const Payment= () => {
         });
         
         if (response.data.match) {
-          setMessage(`✅ User Found: ${response.data.userName}, €${response.data.balance}`);
+          setMessage(`Verified: ${response.data.userName}`);
+          setMessageType('success');
           setUser(response.data);
           setIsPaymentConfirmed(false);
         } else {
-          setMessage("❌ User Not Found. Please register.");
+          setMessage("User not found. Please register.");
+          setMessageType('error');
         }
       } catch (error) {
         console.error("Verification error:", error);
-        setMessage("⚠️ Error verifying face.");
+        setMessage("Error verifying face. Please try again.");
+        setMessageType('error');
+      } finally {
+        setIsVerifying(false);
       }
     }, "image/jpeg", 0.95);
   };
 
   const handleConfirmPayment = async () => {
     if (!user || !selectedRoute) return;
-
+    
+    setIsProcessingPayment(true);
+    setMessage('Processing payment...');
+    setMessageType('info');
+    
     const paymentData = {
-        userId: user.userId,
-        ticketPrice: 2.50, // Fixed price
-        routeDetails: {
-          route_id: selectedRoute.route_id,
-          route_long_name: selectedRoute.route_long_name || selectedRoute.name,
-          route_short_name: selectedRoute.route_short_name || selectedRoute.shortName,
-          path: selectedRoute.path // Include if available
-        }
-      };
+      userId: user.userId,
+      ticketPrice: ticketPrice,
+      routeDetails: {
+        route_id: selectedRoute.route_id,
+        route_long_name: selectedRoute.route_long_name || selectedRoute.name,
+        route_short_name: selectedRoute.route_short_name || selectedRoute.shortName,
+        path: selectedRoute.path
+      }
+    };
   
     try {
       const paymentResponse = await axios.post("http://localhost:4000/pay-with-face", paymentData);
 
       if (paymentResponse.data.success) {
-        setMessage(`✅ Payment Successful! Remaining Balance: €${paymentResponse.data.remainingBalance}`);
+        setMessage(`Payment successful! Remaining balance: €${paymentResponse.data.remainingBalance}`);
+        setMessageType('success');
         setIsPaymentConfirmed(true);
+        setUser({ ...user, balance: paymentResponse.data.remainingBalance });
       } else {
-        setMessage(`❌ Payment Failed: ${paymentResponse.data.message}`);
+        setMessage(`Payment failed: ${paymentResponse.data.message}`);
+        setMessageType('error');
       }
     } catch (error) {
       if (error.response) {
         if (error.response.status === 400 && error.response.data.message === "Insufficient balance") {
-          setMessage("⚠️ You don't have enough funds to complete the payment.");
+          setMessage("Insufficient funds to complete payment");
         } else {
-          setMessage(`⚠️ Error: ${error.response.data.message || "Something went wrong"}`);
+          setMessage(`Error: ${error.response.data.message || "Payment failed"}`);
         }
       } else if (error.request) {
-        setMessage("⚠️ No response from the server.");
+        setMessage("No response from server. Please try again.");
       } else {
-        setMessage(`⚠️ Error: ${error.message}`);
+        setMessage(`Error: ${error.message}`);
       }
+      setMessageType('error');
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -120,68 +146,194 @@ const Payment= () => {
   }, [streamActive]);
 
   return (
-    <div className='cameraPage'>
-      <div className="checkout-container">
-        <div className="summary-section">
-          <h2>Bus Ticket Summary</h2>
-          <Link to="/search" className="back-to-timetable">← Back to Search</Link>
-          {selectedRoute && (
-            <table className="bus-details">
-              <tbody>
-                <tr><td><strong>Route Number:</strong></td><td>{selectedRoute.route_short_name}</td></tr>
-                <tr><td><strong>Route Name:</strong></td><td>{selectedRoute.route_id}</td></tr>
-                <tr><td><strong>Stops:</strong></td><td>
-                  {selectedRoute.path?.map((point, index) => (
-                    <span key={index}>
-                      {point.name}{index < selectedRoute.path.length - 1 ? ' → ' : ''}
-                    </span>
-                  ))}
-                </td></tr>
-                <tr><td><strong>Price:</strong></td><td>€{ticketPrice.toFixed(2)}</td></tr>
-              </tbody>
-            </table>
-          )}
+    <div className="payment-page">
+      <div className="payment-container">
+        {/* Header */}
+        <div className="payment-header">
+          <Link to="/search" className="back-button">
+            <FaArrowLeft /> Back to Search
+          </Link>
+          <h1 className="payment-title">EasyRide Payment</h1>
         </div>
-        
-        <div className="camera-section">
-          <h2>Face Recognition</h2>
-          <div className="camera-wrapper">
-            <video ref={videoRef} autoPlay className="camera-feed"></video>
-            <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+
+        <div className="payment-content">
+          {/* Left Column - Journey Details */}
+          <div className="journey-details">
+            <h2 className="section-title">
+              <FaBusAlt className="section-icon" /> Journey Summary
+            </h2>
+            
+            {selectedRoute && (
+              <div className="journey-card">
+                <div className="journey-info">
+                  <div className="info-item">
+                    <FaBusAlt className="info-icon" />
+                    <div>
+                      <span className="info-label">Route Number</span>
+                      <span className="info-value">{selectedRoute.route_short_name}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="info-item">
+                    <FaRoute className="info-icon" />
+                    <div>
+                      <span className="info-label">Route Name</span>
+                      <span className="info-value">{selectedRoute.route_id}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="info-item stops-item">
+                    <div className="info-icon">
+                      <div className="stop-marker"></div>
+                      <div className="stop-line"></div>
+                    </div>
+                    <div className="stops-list">
+                      <span className="info-label">Stops</span>
+                      {selectedRoute.path?.map((point, index) => (
+                        <div key={index} className="stop-item">
+                          <span className="stop-name">{point.name}</span>
+                          {index < selectedRoute.path.length - 1 && (
+                            <div className="stop-arrow">→</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="price-display">
+                    <FaMoneyBillWave className="price-icon" />
+                    <div>
+                      <span className="price-label">Ticket Price</span>
+                      <span className="price-value">€{ticketPrice.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-          <p className="message">{message}</p>
-        </div>
-        
-        {user && (
-          <div className="payment-section">
-            <h2>Confirm Payment</h2>
-            <table className="user-info">
-              <tbody>
-                <tr><td><strong>👤 User:</strong></td><td>{user.userName}</td></tr>
-                <tr><td><strong>💳 Balance:</strong></td><td>€{user.balance}</td></tr>
-                <tr><td><strong>💶 Ticket Price:</strong></td><td>€{ticketPrice.toFixed(2)}</td></tr>
-                <tr><td><strong>💰 New Balance:</strong></td><td>€{(user.balance - ticketPrice).toFixed(2)}</td></tr>
-              </tbody>
-            </table>
-            <button 
-              className="confirm-btn" 
-              onClick={handleConfirmPayment}
-              disabled={isPaymentConfirmed}
-            >
-              {isPaymentConfirmed ? 'Payment Confirmed' : 'Confirm Payment'}
-            </button>
+
+          {/* Right Column - Camera and Payment */}
+          <div className="payment-process">
+            {/* Camera Section */}
+            <div className="camera-section">
+              <h2 className="section-title">
+                <FaCamera className="section-icon" /> Face Verification
+              </h2>
+              
+              <div className={`camera-container ${streamActive ? 'active' : ''}`}>
+                <video ref={videoRef} autoPlay muted className="camera-feed"></video>
+                {!streamActive && (
+                  <div className="camera-placeholder">
+                    <FaCamera className="placeholder-icon" />
+                    <p>Camera is off</p>
+                  </div>
+                )}
+                <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+              </div>
+              
+              <div className="camera-controls">
+                {!streamActive ? (
+                  <button 
+                    onClick={startCamera} 
+                    className="camera-button primary"
+                    disabled={isVerifying || isProcessingPayment}
+                  >
+                    <FaCamera /> Start Camera
+                  </button>
+                ) : (
+                  <div className="button-group">
+                    <button 
+                      onClick={verifyFace} 
+                      className="camera-button primary"
+                      disabled={isVerifying || isProcessingPayment}
+                    >
+                      {isVerifying ? 'Verifying...' : 'Verify Face'}
+                    </button>
+                    <button 
+                      onClick={stopCamera} 
+                      className="camera-button secondary"
+                      disabled={isVerifying || isProcessingPayment}
+                    >
+                      Stop Camera
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Messages */}
+            {message && (
+              <div className={`message ${messageType}`}>
+                {messageType === 'success' && <FaCheckCircle className="message-icon" />}
+                {message}
+              </div>
+            )}
+
+            {/* Payment Section */}
+            {user && (
+              <div className="user-payment-section">
+                <h2 className="section-title">
+                  <FaWallet className="section-icon" /> Payment Details
+                </h2>
+                
+                <div className="user-card">
+                  <div className="user-info">
+                    <div className="info-item">
+                      <FaUser className="info-icon" />
+                      <div>
+                        <span className="info-label">User</span>
+                        <span className="info-value">{user.userName}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="info-item">
+                      <FaWallet className="info-icon" />
+                      <div>
+                        <span className="info-label">Current Balance</span>
+                        <span className="info-value">€{user.balance}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="info-item">
+                      <FaMoneyBillWave className="info-icon" />
+                      <div>
+                        <span className="info-label">Ticket Price</span>
+                        <span className="info-value">€{ticketPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="info-item">
+                      <FaWallet className="info-icon" />
+                      <div>
+                        <span className="info-label">New Balance</span>
+                        <span className="info-value highlight">
+                          €{(user.balance - ticketPrice).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={handleConfirmPayment} 
+                    className="payment-button"
+                    disabled={isPaymentConfirmed || isProcessingPayment || isVerifying}
+                  >
+                    {isProcessingPayment ? (
+                      <>
+                        <span className="spinner"></span> Processing...
+                      </>
+                    ) : isPaymentConfirmed ? (
+                      <>
+                        <FaCheckCircle /> Payment Confirmed
+                      </>
+                    ) : (
+                      'Confirm Payment'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        
-        <div className="button-group">
-          {!streamActive ? (
-            <button className="start-btn" onClick={startCamera}>Start Camera</button>
-          ) : (
-            <>
-              <button className="verify-btn" onClick={verifyFace}>Verify Face</button>
-              <button className="stop-btn" onClick={stopCamera}>Stop Camera</button>
-            </>
-          )}
         </div>
       </div>
     </div>
