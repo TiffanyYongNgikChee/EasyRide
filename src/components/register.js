@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { FaArrowLeft, FaCamera, FaUserCircle, FaEnvelope, FaLock, FaPhone, FaBus } from 'react-icons/fa';
 
 const Registration = () => {
   const [name, setName] = useState(''); // Store user name
@@ -111,64 +112,132 @@ const Registration = () => {
   };
   
   return (
-    <div className="registration-container">
-      <div className="header">
-        <h2>Register</h2>
-        <Link to="/" className="back-to-menu">Back to Menu</Link>
-      </div>
-      
-      <form onSubmit={handleSubmit} className="registration-form">
-        <div className="form-group">
-          <label>Full Name:</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
-
-        <div className="form-group">
-          <label>Email:</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
-
-        <div className="form-group">
-          <label>Password:</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-
-        <div className="form-group">
-          <label>Phone :</label>
-          <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
-        </div>
-
-        <div className="camera-section">
-          <video ref={videoRef} autoPlay muted className="camera-feed"></video>
-          <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
-
-          {image && (
-            <div className="preview-container">
-              <img src={URL.createObjectURL(image)} alt="Captured" className="image-preview" />
-            </div>
-          )}
-
-          <div className="camera-controls">
-            {!streamActive ? (
-              <button type="button" onClick={startCamera}>Start Camera</button>
-            ) : (
-              <>
-                <button type="button" onClick={captureImage}>Capture Image</button>
-                <button type="button" onClick={stopCamera}>Stop Camera</button>
-              </>
-            )}
+    <div className="registration-page">
+      <div className="registration-container">
+        <div className="registration-header">
+          <Link to="/" className="back-button">
+            <FaArrowLeft /> Back to Menu
+          </Link>
+          <div className="logo-container">
+            <FaBus className="logo-icon" />
+            <h1 className="logo-text">EasyRide</h1>
           </div>
         </div>
 
-        {message && <div className={`message ${messageType}`}>{message}</div>}
+        <div className="registration-card">
+          <h2 className="registration-title">Create Your Account</h2>
+          <p className="registration-subtitle">Register with face recognition for secure access</p>
 
-        <button type="submit" disabled={loading || !image}> 
-          {loading ? "Processing..." : "Register"}
-        </button>
-      </form>
-      <p className="login-link">
-        Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Login now</Link>
-      </p>
+          {message && <div className={`message ${messageType}`}>{message}</div>}
+
+          <form onSubmit={handleSubmit} className="registration-form">
+            <div className="form-group">
+              <div className="input-icon">
+                <FaUserCircle />
+              </div>
+              <input 
+                type="text" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                placeholder="Full Name" 
+                required 
+              />
+            </div>
+
+            <div className="form-group">
+              <div className="input-icon">
+                <FaEnvelope />
+              </div>
+              <input 
+                type="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="Email Address" 
+                required 
+              />
+            </div>
+
+            <div className="form-group">
+              <div className="input-icon">
+                <FaLock />
+              </div>
+              <input 
+                type="password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                placeholder="Password" 
+                required 
+              />
+            </div>
+
+            <div className="form-group">
+              <div className="input-icon">
+                <FaPhone />
+              </div>
+              <input 
+                type="text" 
+                value={phone} 
+                onChange={(e) => setPhone(e.target.value)} 
+                placeholder="Phone Number (Optional)" 
+              />
+            </div>
+
+            <div className="face-recognition-section">
+              <h3 className="section-title">Face Recognition</h3>
+              <p className="section-description">Capture your image for secure login</p>
+              
+              <div className="camera-container">
+                <video ref={videoRef} autoPlay muted className={`camera-feed ${streamActive ? 'active' : ''}`}></video>
+                {!streamActive && (
+                  <div className="camera-placeholder">
+                    <FaCamera className="placeholder-icon" />
+                    <p>Camera is off</p>
+                  </div>
+                )}
+                <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+              </div>
+
+              {image && (
+                <div className="preview-container">
+                  <img src={URL.createObjectURL(image)} alt="Captured" className="image-preview" />
+                  <p className="preview-label">Your captured image</p>
+                </div>
+              )}
+
+              <div className="camera-controls">
+                {!streamActive ? (
+                  <button type="button" onClick={startCamera} className="camera-button">
+                    <FaCamera /> Start Camera
+                  </button>
+                ) : (
+                  <div className="button-group">
+                    <button type="button" onClick={captureImage} className="camera-button">
+                      <FaCamera /> Capture Image
+                    </button>
+                    <button type="button" onClick={stopCamera} className="camera-button secondary">
+                      Stop Camera
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button type="submit" disabled={loading || !image} className="submit-button">
+              {loading ? (
+                <>
+                  <span className="spinner"></span> Processing...
+                </>
+              ) : (
+                'Complete Registration'
+              )}
+            </button>
+          </form>
+
+          <div className="login-redirect">
+            Already have an account? <Link to="/login" className="login-link">Sign in here</Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
