@@ -1,7 +1,5 @@
 import BusTimetable from './components/BusTimetable';
-import History from './components/history';
 import Register from './components/register';
-import Camera from './components/system_camera';
 import UserMenu from './components/user_menu';
 import Dashboard from './components/dashboard';
 import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
@@ -37,9 +35,7 @@ function App() {
             path="/dashboard" 
             element={token ? <Dashboard /> : <Navigate to="/login" />} 
         />
-        <Route path="/camera" element={<Camera />} />
         <Route path="/wallet" element={<Wallet />} />
-        <Route path="/history" element={<History />} />
         <Route path="/Search" element={<SearchComponent />} />
         <Route path="/payment" element={<Payment />} />
       </Routes>
