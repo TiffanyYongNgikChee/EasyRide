@@ -66,6 +66,7 @@ const Wallet = () => {
 
   return (
     <div className="wallet-website">
+      
     {/* Header Section */}
     <header className="wallet-header">
       <h1>Travel Wallet</h1>
