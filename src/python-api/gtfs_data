@@ -1,0 +1,8 @@
+import pandas as pd
+
+# Load the JSON files to confirm they work
+stops = pd.read_json('preprocessed/stops.json')
+stop_times = pd.read_json('preprocessed/stop_times.json')
+
+print("Stops:", stops.head())
+print("Stop times:", stop_times.head())
