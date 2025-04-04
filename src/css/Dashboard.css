@@ -1,70 +1,259 @@
-/* Style for the wrapper to hold the sidebar and content */
-.dashboard-wrapper {
+/* Main Layout */
+.dashboard-container {
     display: flex;
+    min-height: 100vh;
+    background-color: #f5f9ff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Sidebar styles */
+/* Cute Sidebar */
 .dashboard-sidebar {
-    width: 200px;
-    background-color: #333;
+    width: 250px;
+    background: linear-gradient(135deg, #1e88e5, #0d47a1);
     color: white;
-    height: 100vh;
-    padding-top: 20px;
-    position: fixed;
+    padding: 1.5rem 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard-sidebar-item {
-    padding: 15px;
-    text-align: center;
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-logo {
+    font-size: 1.8rem;
+    margin-right: 0.8rem;
+    color: #ffd700;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    margin: 0.5rem 0;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
 }
 
-.dashboard-sidebar-item:hover {
-    background-color: #575757;
+.sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
-/* Styles for the dashboard content */
-.dashboard-content {
-    margin-left: 220px; /* Adjust space for sidebar */
-    padding: 20px;
-    width: 100%;
-    background-color: #f4f4f4;
+.sidebar-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-left: 4px solid #ffd700;
 }
 
-/* Specific styles for h2 in Dashboard */
-.dashboard-message {
+.sidebar-icon {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+/* Main Content */
+.dashboard-main {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.welcome-banner {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-banner h1 {
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+.wave {
+    animation: wave 2s infinite;
+}
+
+@keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(10deg); }
+    50% { transform: rotate(-10deg); }
+    75% { transform: rotate(5deg); }
+}
+
+/* Stats Cards */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card.blue {
+    border-bottom: 4px solid #1e88e5;
+}
+
+.stat-card.green {
+    border-bottom: 4px solid #4CAF50;
+}
+
+.stat-card.purple {
+    border-bottom: 4px solid #9C27B0;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    color: #1e88e5;
+}
+
+.stat-card.green .stat-icon {
+    color: #4CAF50;
+}
+
+.stat-card.purple .stat-icon {
+    color: #9C27B0;
+}
+
+.stat-card h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+    font-size: 1.5rem;
+    font-weight: 600;
     color: #333;
 }
 
-/* Specific styles for table headers and content in Dashboard */
-.dashboard-table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
+/* Cute Tables */
+.table-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.dashboard-table, .dashboard-table th, .dashboard-table td {
-    border: 1px solid #ddd;
+.table-header {
+    display: flex;
+    align-items: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+}
+
+.header-icon {
+    margin-right: 0.8rem;
+    color: #1e88e5;
+}
+
+.cute-table-container {
+    overflow-x: auto;
+}
+
+.cute-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.cute-table th {
+    background: #e3f2fd;
+    color: #1e88e5;
+    padding: 1rem;
     text-align: left;
+    font-weight: 600;
 }
 
-.dashboard-table th, .dashboard-table td {
-    padding: 8px 12px;
+.cute-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
 }
 
-.dashboard-table th {
-    background-color: #333;
-    color: white;
+.cute-table tr:last-child td {
+    border-bottom: none;
 }
 
-.dashboard-table td {
-    background-color: #f9f9f9;
+.cute-table tr:hover td {
+    background: #f5f9ff;
 }
 
-/* Specific styles for table headings in Dashboard */
-.dashboard-table-heading {
-    font-size: 1.2em;
+/* Table Elements */
+.transaction-icon {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.transaction-icon.payment {
+    color: #FF5722;
+}
+
+.transaction-icon.credit {
+    color: #4CAF50;
+}
+
+.status-bubble {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-bubble.completed, 
+.status-bubble.success {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.status-bubble.pending {
+    background: #FFF3E0;
+    color: #EF6C00;
+}
+
+.status-bubble.failed {
+    background: #FFEBEE;
+    color: #C62828;
+}
+
+.route-name {
+    display: flex;
+    flex-direction: column;
+}
+
+.route-name strong {
+    font-weight: 600;
     color: #333;
-    margin-top: 30px;
+}
+
+.route-name span {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.2rem;
+}
+
+.stops-preview {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.no-data {
+    text-align: center;
+    color: #666;
+    padding: 2rem !important;
 }

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/Dashboard.css';
+import { FaHome, FaWallet, FaTicketAlt, FaUser, FaHistory, FaBusAlt } from 'react-icons/fa';
+import { GiMoneyStack } from 'react-icons/gi';
+import { BsArrowUpRightCircleFill, BsCheckCircleFill } from 'react-icons/bs'
 
 const Dashboard = () => {
     const [message, setMessage] = useState('');
@@ -31,94 +34,175 @@ const Dashboard = () => {
     }, [navigate]);
 
     return (
-        <div className="dashboard-wrapper">
-            {/* Sidebar */}
+        <div className="dashboard-container">
+            {/* Cute Sidebar */}
             <div className="dashboard-sidebar">
-                <div className="dashboard-sidebar-item" onClick={() => navigate('/dashboard')}>
-                    Dashboard
+                <div className="sidebar-header">
+                    <FaBusAlt className="sidebar-logo" />
+                    <h2>EasyRide</h2>
                 </div>
-                <div
-                    className="dashboard-sidebar-item"
-                    onClick={() => {
+                
+                <div className="sidebar-item active" onClick={() => navigate('/dashboard')}>
+                    <FaHome className="sidebar-icon" />
+                    <span>Dashboard</span>
+                </div>
+                
+                <div className="sidebar-item" onClick={() => {
                         localStorage.setItem('balance', user.balance);
                         navigate('/wallet');
                     }}>
-                    Wallet
+                    <FaWallet className="sidebar-icon" />
+                    <span>Wallet</span>
                 </div>
-                <div className="dashboard-sidebar-item" onClick={() => navigate('/search')}>
-                    Buy Ticket
+                
+                <div className="sidebar-item" onClick={() => navigate('/search')}>
+                    <FaTicketAlt className="sidebar-icon" />
+                    <span>Buy Ticket</span>
                 </div>
-                <div className="dashboard-sidebar-item" onClick={() => navigate('/profile')}>
-                    Profile
+                
+                <div className="sidebar-item" onClick={() => navigate('/profile')}>
+                    <FaUser className="sidebar-icon" />
+                    <span>Suggest Route</span>
                 </div>
             </div>
 
-            {/* Main Content Area */}
-            <div className="dashboard-content">
-                {/* Specific h2 for Dashboard */}
-                <h2 className="dashboard-message">{message}</h2>
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Balance:</strong> ${user.balance}</p>
+            {/* Main Content */}
+            <div className="dashboard-main">
+                <div className="welcome-banner">
+                    <h1>Welcome back, {user.name || 'Traveler'}! <span className="wave">👋</span></h1>
+                    <p>{message}</p>
+                </div>
 
-                <h3 className="dashboard-table-heading">Transaction History</h3>
-                <table className="dashboard-table" border="1">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Timestamp</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transactions.length > 0 ? (
-                            transactions.map((txn) => (
-                                <tr key={txn._id}>
-                                    <td>{txn.type}</td>
-                                    <td>${txn.amount}</td>
-                                    <td>{txn.status}</td>
-                                    <td>{new Date(txn.time_stamp).toLocaleString()}</td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan="4">No transactions found</td></tr>
-                        )}
-                    </tbody>
-                </table>
+                {/* User Stats Cards */}
+                <div className="stats-cards">
+                    <div className="stat-card blue">
+                        <GiMoneyStack className="stat-icon" />
+                        <div>
+                            <h3>Current Balance</h3>
+                            <p>€{user.balance?.toFixed(2) || '0.00'}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="stat-card green">
+                        <FaTicketAlt className="stat-icon" />
+                        <div>
+                            <h3>Total Trips</h3>
+                            <p>{trips.length}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="stat-card purple">
+                        <FaHistory className="stat-icon" />
+                        <div>
+                            <h3>Transactions</h3>
+                            <p>{transactions.length}</p>
+                        </div>
+                    </div>
+                </div>
 
-                <h3 className="dashboard-table-heading">Trip History</h3>
-                <table className="dashboard-table" border="1">
-                    <thead>
-                        <tr>
-                            <th>Bus Route</th>
-                            <th>Route Name</th>
-                            <th>Stops</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Purchase Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {trips.length > 0 ? (
-                            trips.map((trip) => (
-                                <tr key={trip._id}>
-                                    <td>{trip.route_short_name}</td>
-                                    <td>{trip.route_long_name}</td>
-                                    <td>{trip.stops || 'N/A'}</td>
-                                    <td>${trip.price}</td>
-                                    <td>{trip.status}</td>
-                                    <td>{new Date(trip.purchase_time).toLocaleString()}</td>
+                {/* Cute Tables */}
+                <div className="table-section">
+                    <h2 className="table-header">
+                        <FaHistory className="header-icon" />
+                        Recent Transactions
+                    </h2>
+                    
+                    <div className="cute-table-container">
+                        <table className="cute-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan="6">No trips found</td></tr>
-                        )}
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                {transactions.length > 0 ? (
+                                    transactions.slice(0, 5).map((txn) => (
+                                        <tr key={txn._id}>
+                                            <td>
+                                                {txn.type === 'payment' ? 
+                                                    <BsArrowUpRightCircleFill className="transaction-icon payment" /> : 
+                                                    <BsCheckCircleFill className="transaction-icon credit" />}
+                                                {txn.type}
+                                            </td>
+                                            <td>${txn.amount.toFixed(2)}</td>
+                                            <td>
+                                                <span className={`status-bubble ${txn.status}`}>
+                                                    {txn.status}
+                                                </span>
+                                            </td>
+                                            <td>{new Date(txn.time_stamp).toLocaleDateString()}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="4" className="no-data">
+                                            No transactions yet
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div className="table-section">
+                    <h2 className="table-header">
+                        <FaBusAlt className="header-icon" />
+                        Your Trips
+                    </h2>
+                    
+                    <div className="cute-table-container">
+                        <table className="cute-table">
+                            <thead>
+                                <tr>
+                                    <th>Route</th>
+                                    <th>Stops</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {trips.length > 0 ? (
+                                    trips.slice(0, 5).map((trip) => (
+                                        <tr key={trip._id}>
+                                            <td>
+                                                <div className="route-name">
+                                                    <strong>{trip.route_short_name}</strong>
+                                                    <span>{trip.route_long_name}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="stops-preview">
+                                                    {trip.stops?.split('→')[0].trim()} → ... → {trip.stops?.split('→').pop().trim()}
+                                                </div>
+                                            </td>
+                                            <td>${trip.price.toFixed(2)}</td>
+                                            <td>
+                                                <span className={`status-bubble ${trip.status}`}>
+                                                    {trip.status}
+                                                </span>
+                                            </td>
+                                            <td>{new Date(trip.purchase_time).toLocaleDateString()}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="no-data">
+                                            No trips booked yet
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     );
 };
-
 
 export default Dashboard;

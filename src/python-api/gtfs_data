@@ -1,7 +1,8 @@
 import pandas as pd
+import networkx as nx
 
-# Load stops (JSON)
-stops = pd.read_json('preprocessed/stops.json')  # Stays as JSON
+# Load preprocessed data
+stops = pd.read_parquet('preprocessed/stops.parquet')
+stop_times = pd.read_parquet('preprocessed/stop_times.parquet')
 
-# Load stop_times (Parquet)
-stop_times = pd.read_parquet('preprocessed/stop_times.parquet')  # Uses Parquet
+print(stop_times.groupby('trip_id').size())  # Count stops per trip
