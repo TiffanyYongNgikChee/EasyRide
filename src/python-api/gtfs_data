@@ -1,8 +1,0 @@
-import pandas as pd
-import networkx as nx
-
-# Load preprocessed data
-stops = pd.read_parquet('preprocessed/stops.parquet')
-stop_times = pd.read_parquet('preprocessed/stop_times.parquet')
-
-print(stop_times.groupby('trip_id').size())  # Count stops per trip
