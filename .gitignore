@@ -24,4 +24,4 @@ yarn-error.log*
 
 # Prevent accidentally re-uploading raw GTFS files
 /gtfs-data/
-*.txt
+*.txtpreprocessed/stop_times.json
