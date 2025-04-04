@@ -1,8 +1,7 @@
 import pandas as pd
 
-# Load the JSON files to confirm they work
-stops = pd.read_json('preprocessed/stops.json')
-stop_times = pd.read_json('preprocessed/stop_times.json')
+# Load stops (JSON)
+stops = pd.read_json('preprocessed/stops.json')  # Stays as JSON
 
-print("Stops:", stops.head())
-print("Stop times:", stop_times.head())
+# Load stop_times (Parquet)
+stop_times = pd.read_parquet('preprocessed/stop_times.parquet')  # Uses Parquet
