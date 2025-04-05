@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { FaHome, FaWallet, FaTicketAlt, FaUser, FaBusAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import '../css/Wallet.css';
 
 const Wallet = () => {
@@ -12,6 +14,7 @@ const Wallet = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
   const userId = localStorage.getItem("userId");  // ✅ Get userId from localStorage
+  const navigate = useNavigate();
 
   // Parsed amounts with visual indicators
   const amountOptions = [
@@ -65,70 +68,100 @@ const Wallet = () => {
   };
 
   return (
-    <div className="wallet-website">
-      
-    {/* Header Section */}
-    <header className="wallet-header">
-      <h1>Travel Wallet</h1>
-      <p>Top up your balance for seamless bus travel</p>
-    </header>
-
-    {/* Main Content */}
-    <main className="wallet-main">
-      {/* Balance Card */}
-      <div className="balance-card">
-        <div className="balance-info">
-          <span className="wallet-emoji">💳</span>
-          <div>
-            <p className="balance-label">Available Balance</p>
-            <p className="balance-amount">€{balance.toFixed(2)}</p>
-          </div>
+    <div className="wallet-container">
+      {/* Cute Sidebar (Same as Dashboard) */}
+      <div className="dashboard-sidebar">
+        <div className="sidebar-header">
+          <FaBusAlt className="sidebar-logo" />
+          <h2>EasyRide</h2>
         </div>
-      </div>
-
-      {/* Amount Selection */}
-      <div className="amount-selection">
-        <h3>Select Top-Up Amount</h3>
-        <div className="amount-options">
-          {amountOptions.map((option) => (
-            <div
-              key={option.value}
-              className={`amount-card ${amount === option.value ? "selected" : ""}`}
-              onClick={() => handleTopUp(option.value)}
-            >
-              <span className="amount-value">€{option.value}</span>
-              <span className="amount-label">{option.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Action Area */}
-      <div className="action-area">
-        <button
-          className={`confirm-btn ${isProcessing ? "processing" : ""}`}
-          disabled={amount === 0 || isProcessing}
-        >
-          {isProcessing ? (
-            <>
-              <span className="spinner"></span>
-              Processing...
-            </>
-          ) : (
-            `Add €${amount} to Wallet`
-          )}
-        </button>
         
-        {message && <div className="message">{message}</div>}
+        <div className="sidebar-item" onClick={() => navigate('/dashboard')}>
+          <FaHome className="sidebar-icon" />
+          <span>Dashboard</span>
+        </div>
+        
+        <div className="sidebar-item active" onClick={() => navigate('/wallet')}>
+          <FaWallet className="sidebar-icon" />
+          <span>Wallet</span>
+        </div>
+        
+        <div className="sidebar-item" onClick={() => navigate('/search')}>
+          <FaTicketAlt className="sidebar-icon" />
+          <span>Buy Ticket</span>
+        </div>
+        
+        <div className="sidebar-item" onClick={() => navigate('/profile')}>
+          <FaUser className="sidebar-icon" />
+          <span>Profile</span>
+        </div>
       </div>
-    </main>
 
-    {/* Footer Note */}
-    <footer className="wallet-footer">
-      <span className="lock-icon">🔒</span>
-      <span>Demo mode - No real payments required</span>
-    </footer>
-  </div>
+      {/* Original Wallet Content (Unchanged) */}
+      <div className="wallet-content">
+        {/* Header Section */}
+        <header className="wallet-header">
+          <h1>Travel Wallet</h1>
+          <p>Top up your balance for seamless bus travel</p>
+        </header>
+
+        {/* Main Content */}
+        <main className="wallet-main">
+          {/* Balance Card */}
+          <div className="balance-card">
+            <div className="balance-info">
+              <span className="wallet-emoji">💳</span>
+              <div>
+                <p className="balance-label">Available Balance</p>
+                <p className="balance-amount">€{balance.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Amount Selection */}
+          <div className="amount-selection">
+            <h3>Select Top-Up Amount</h3>
+            <div className="amount-options">
+              {amountOptions.map((option) => (
+                <div
+                  key={option.value}
+                  className={`amount-card ${amount === option.value ? "selected" : ""}`}
+                  onClick={() => handleTopUp(option.value)}
+                >
+                  <span className="amount-value">€{option.value}</span>
+                  <span className="amount-label">{option.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Area */}
+          <div className="action-area">
+            <button
+              className={`confirm-btn ${isProcessing ? "processing" : ""}`}
+              disabled={amount === 0 || isProcessing}
+            >
+              {isProcessing ? (
+                <>
+                  <span className="spinner"></span>
+                  Processing...
+                </>
+              ) : (
+                `Add €${amount} to Wallet`
+              )}
+            </button>
+            
+            {message && <div className="message">{message}</div>}
+          </div>
+        </main>
+
+        {/* Footer Note */}
+        <footer className="wallet-footer">
+          <span className="lock-icon">🔒</span>
+          <span>Demo mode - No real payments required</span>
+        </footer>
+      </div>
+    </div>
   );
 };
 
