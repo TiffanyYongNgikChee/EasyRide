@@ -257,3 +257,37 @@
     color: #666;
     padding: 2rem !important;
 }
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.pagination-button {
+    background: var(--primary-color);
+    color: rgb(80, 154, 193);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.pagination-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.table-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-number{
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}

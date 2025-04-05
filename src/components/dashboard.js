@@ -11,7 +11,10 @@ const Dashboard = () => {
     const [transactions, setTransactions] = useState([]);
     const [trips, setTrips] = useState([]);
     const navigate = useNavigate();
-
+    const [transactionsPage, setTransactionsPage] = useState(1);
+    const [tripsPage, setTripsPage] = useState(1);
+    const itemsPerPage = 5;
+    
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -32,6 +35,42 @@ const Dashboard = () => {
         })
         .catch((err) => console.error('Dashboard error:', err));
     }, [navigate]);
+
+    // Calculate paginated data
+    const paginatedTransactions = transactions.slice(
+        (transactionsPage - 1) * itemsPerPage,
+        transactionsPage * itemsPerPage
+    );
+
+    const paginatedTrips = trips.slice(
+        (tripsPage - 1) * itemsPerPage,
+        tripsPage * itemsPerPage
+    );
+
+    // Pagination handlers
+    const nextTransactionsPage = () => {
+        if (transactionsPage * itemsPerPage < transactions.length) {
+            setTransactionsPage(transactionsPage + 1);
+        }
+    };
+
+    const prevTransactionsPage = () => {
+        if (transactionsPage > 1) {
+            setTransactionsPage(transactionsPage - 1);
+        }
+    };
+
+    const nextTripsPage = () => {
+        if (tripsPage * itemsPerPage < trips.length) {
+            setTripsPage(tripsPage + 1);
+        }
+    };
+
+    const prevTripsPage = () => {
+        if (tripsPage > 1) {
+            setTripsPage(tripsPage - 1);
+        }
+    };
 
     return (
         <div className="dashboard-container">
@@ -105,6 +144,23 @@ const Dashboard = () => {
                     <h2 className="table-header">
                         <FaHistory className="header-icon" />
                         Recent Transactions
+                        <div className="pagination-controls">
+                            <button 
+                                onClick={prevTransactionsPage}
+                                disabled={transactionsPage === 1}
+                                className="pagination-button"
+                            >
+                                Previous
+                            </button>
+                            <span className='page-number'>Page {transactionsPage}</span>
+                            <button 
+                                onClick={nextTransactionsPage}
+                                disabled={transactionsPage * itemsPerPage >= transactions.length}
+                                className="pagination-button"
+                            >
+                                Next
+                            </button>
+                        </div>
                     </h2>
                     
                     <div className="cute-table-container">
@@ -118,8 +174,8 @@ const Dashboard = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {transactions.length > 0 ? (
-                                    transactions.slice(0, 5).map((txn) => (
+                            {paginatedTransactions.length > 0 ? (
+                                paginatedTransactions.map((txn) => (
                                         <tr key={txn._id}>
                                             <td>
                                                 {txn.type === 'payment' ? 
@@ -152,6 +208,23 @@ const Dashboard = () => {
                     <h2 className="table-header">
                         <FaBusAlt className="header-icon" />
                         Your Trips
+                        <div className="pagination-controls">
+                            <button 
+                                onClick={prevTripsPage}
+                                disabled={tripsPage === 1}
+                                className="pagination-button"
+                            >
+                                Previous
+                            </button>
+                            <span className='page-number'>Page {tripsPage}</span>
+                            <button 
+                                onClick={nextTripsPage}
+                                disabled={tripsPage * itemsPerPage >= trips.length}
+                                className="pagination-button"
+                            >
+                                Next
+                            </button>
+                        </div>
                     </h2>
                     
                     <div className="cute-table-container">
@@ -166,8 +239,8 @@ const Dashboard = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {trips.length > 0 ? (
-                                    trips.slice(0, 5).map((trip) => (
+                            {paginatedTrips.length > 0 ? (
+                                paginatedTrips.map((trip) => (
                                         <tr key={trip._id}>
                                             <td>
                                                 <div className="route-name">

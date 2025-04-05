@@ -75,7 +75,7 @@ const SearchComponent = () => {
         
         <div className="sidebar-item" onClick={() => navigate('/profile')}>
           <FaUser className="sidebar-icon" />
-          <span>Profile</span>
+          <span>Suggest Route</span>
         </div>
       </div>
 
