@@ -75,3 +75,45 @@
     background: #f9f9f9;
     border-radius: 4px;
 }
+
+/* Search Page Styles */
+.search-page {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Stop Card Styles */
+  .stop-card {
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .stop-card:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .stop-card h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+  }
+  
+  .stop-card p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  /* Responsive Layout */
+  @media (max-width: 768px) {
+    .search-page {
+      flex-direction: column;
+    }
+    
+    .search-section, .map-section {
+      width: 100%;
+    }
+  }
