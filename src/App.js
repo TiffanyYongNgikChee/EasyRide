@@ -12,7 +12,9 @@ import Login from './components/login';
 import Wallet from './components/Wallet';
 import SearchComponent from './components/SearchTimetable';
 import Payment from './components/Payment';
-
+import StopSearch from './components/NearestStop';
+import StopMap from './components/BusMap';
+import SearchPage from './components/SuggestRoute';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -38,6 +40,9 @@ function App() {
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/Search" element={<SearchComponent />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/stopmap" element={<StopMap />} />
+        <Route path="/stopsearch" element={<StopSearch />} />
+        <Route path="/suggest" element={<SearchPage/>} />
       </Routes>
     </Router>
   );
