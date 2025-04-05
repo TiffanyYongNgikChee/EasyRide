@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/Dashboard.css';
-import { FaHome, FaWallet, FaTicketAlt, FaUser, FaHistory, FaBusAlt } from 'react-icons/fa';
+import { FaHome, FaWallet, FaTicketAlt, FaUser, FaHistory, FaBusAlt, FaSignOutAlt } from 'react-icons/fa';
 import { GiMoneyStack } from 'react-icons/gi';
 import { BsArrowUpRightCircleFill, BsCheckCircleFill } from 'react-icons/bs'
 
@@ -102,6 +102,19 @@ const Dashboard = () => {
                 <div className="sidebar-item" onClick={() => navigate('/profile')}>
                     <FaUser className="sidebar-icon" />
                     <span>Suggest Route</span>
+                </div>
+                <div 
+                    className="sidebar-item logout-button"
+                    onClick={() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('balance');
+                    navigate('/login');
+                    }}
+                >
+                    <FaSignOutAlt className="sidebar-icon" />
+                    <span>Logout</span>
                 </div>
             </div>
 

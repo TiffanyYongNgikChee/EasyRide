@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import RouteCard from './RouteCard';
 import '../css/SearchTable.css';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaWallet, FaUser, FaBusAlt, FaSearch, FaBus, FaMapMarkerAlt, FaTicketAlt } from 'react-icons/fa';
+import { FaHome, FaWallet, FaUser, FaBusAlt, FaSearch, FaBus, FaMapMarkerAlt, FaTicketAlt, FaSignOutAlt } from 'react-icons/fa';
 
 const SearchComponent = () => {
   const [query, setQuery] = useState('');
@@ -77,6 +77,20 @@ const SearchComponent = () => {
           <FaUser className="sidebar-icon" />
           <span>Suggest Route</span>
         </div>
+        <div 
+          className="sidebar-item logout-button"
+          onClick={() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('balance');
+            navigate('/login');
+          }}
+        >
+          <FaSignOutAlt className="sidebar-icon" />
+          <span>Logout</span>
+        </div>
+        
       </div>
 
       {/* Original Search Content */}

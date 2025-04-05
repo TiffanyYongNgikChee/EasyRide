@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaHome, FaWallet, FaTicketAlt, FaUser, FaBusAlt } from 'react-icons/fa';
+import { FaHome, FaWallet, FaTicketAlt, FaUser, FaBusAlt,FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../css/Wallet.css';
 
@@ -95,6 +95,19 @@ const Wallet = () => {
           <FaUser className="sidebar-icon" />
           <span>Suggest Route</span>
         </div>
+        <div 
+            className="sidebar-item logout-button"
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('userId');
+              localStorage.removeItem('userName');
+              localStorage.removeItem('balance');
+              navigate('/login');
+            }}
+          >
+            <FaSignOutAlt className="sidebar-icon" />
+            <span>Logout</span>
+          </div>
       </div>
 
       {/* Original Wallet Content (Unchanged) */}

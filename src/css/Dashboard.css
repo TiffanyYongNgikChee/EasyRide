@@ -291,3 +291,23 @@
     color: #666;
     margin-bottom: 0.5rem;
 }
+
+.sidebar-item.logout-button {
+    margin-top: auto; /* Pushes to bottom */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ff6b6b;
+    border-left: 4px solid transparent !important;
+  }
+  
+  .sidebar-item.logout-button:hover {
+    background: rgba(255, 107, 107, 0.1) !important;
+    color: #ff5252;
+  }
+  
+  .sidebar-item.logout-button .sidebar-icon {
+    color: #ff6b6b;
+  }
+  
+  .sidebar-item.logout-button:hover .sidebar-icon {
+    color: #ff5252;
+  }
