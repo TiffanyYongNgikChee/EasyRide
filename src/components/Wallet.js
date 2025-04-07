@@ -90,11 +90,7 @@ const Wallet = () => {
           <FaTicketAlt className="sidebar-icon" />
           <span>Buy Ticket</span>
         </div>
-        
-        <div className="sidebar-item" onClick={() => navigate('/profile')}>
-          <FaUser className="sidebar-icon" />
-          <span>Suggest Route</span>
-        </div>
+    
         <div 
             className="sidebar-item logout-button"
             onClick={() => {

@@ -65,26 +65,13 @@ const Route = mongoose.model("Route", new mongoose.Schema({
   route_long_name: String
 }));
 
-// Stop Schema with location field for geospatial queries
-const stopSchema = new mongoose.Schema({
+const Stop = mongoose.model("Stop", new mongoose.Schema({
   stop_id: String,
   stop_name: String,
   stop_lat: Number,
-  stop_lon: Number,
-  location: {
-    type: {
-      type: String,
-      enum: ['Point'],
-      required: true
-    },
-    coordinates: {
-      type: [Number],
-      required: true
-    }
-  }
-});
-// Create 2dsphere index for geospatial queries
-stopSchema.index({ location: '2dsphere' });
+  stop_lon: Number
+  }));
+
 
 // New API Endpoints for GTFS
 app.get("/api/gtfs/routes", async (req, res) => {
@@ -95,6 +82,71 @@ app.get("/api/gtfs/routes", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch routes" });
   }
 });
+
+app.get("/api/gtfs/stops", async (req, res) => {
+  try {
+    const stops = await Stop.find();
+    res.json(stops);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch stops" });
+  }
+});
+
+app.get("/api/gtfs/search", async (req, res) => {
+  try {
+    const searchTerm = req.query.q;
+
+    // 1. Find matching routes
+    const routes = await Route.find({
+      $or: [
+        { route_long_name: { $regex: searchTerm, $options: 'i' } },
+        { route_short_name: { $regex: searchTerm, $options: 'i' } }
+      ]
+    });
+
+    // 2. Process each route
+    const routesWithPath = await Promise.all(
+      routes.map(async (route) => {
+        // Extract location names from route_long_name (e.g., "Galway → Limerick → Cork")
+        const locationNames = route.route_long_name.split(/ - | → | to /i);
+
+        // Geocode each location
+        const path = [];
+        for (const name of locationNames) {
+          try {
+            const response = await axios.get(
+              `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(name.trim())}&key=AIzaSyAjjR0-3zkTPmljMueREFtfZjl-Kr-bs6A`
+            );
+            if (response.data.results[0]) {
+              path.push({
+                name: name.trim(),
+                lat: response.data.results[0].geometry.location.lat,
+                lng: response.data.results[0].geometry.location.lng
+              });
+            }
+          } catch (err) {
+            console.error(`Geocoding failed for "${name}":`, err.message);
+          }
+        }
+
+        return {
+          id: route._id,
+          route_id: route.route_id,
+          name: route.route_long_name,
+          shortName: route.route_short_name,
+          type: 'route',
+          path // Array of {name, lat, lng}
+        };
+      })
+    );
+
+    res.json({ routes: routesWithPath });
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ error: "Search failed", details: err.message });
+  }
+});
+
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
@@ -108,7 +160,6 @@ userSchema.pre('save', async function (next) {
 const User = mongoose.model('User', userSchema);
 const Transaction = mongoose.model('Transaction', TransactionSchema);
 const TripHistory = mongoose.model('TripHistory', TripHistorySchema);
-const Stop = mongoose.model("Stop", stopSchema);
 
 // Transform existing stops to include location field
 async function updateStopsWithLocation() {
