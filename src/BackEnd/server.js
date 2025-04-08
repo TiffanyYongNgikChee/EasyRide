@@ -2,22 +2,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer'); // to handle image uploads
-const { spawn } = require('child_process');
+const { spawn } = require('child_process'); // Used to spawn Python process (not directly used here)
 const path = require('path');
-const fs = require('fs');
-const cors = require('cors'); // to allow frontend communication
-const axios = require('axios');
-const FormData = require('form-data');
+const fs = require('fs'); // For file system access
+const cors = require('cors'); // Enable Cross-Origin Resource Sharing
+const axios = require('axios'); // HTTP requests (used to communicate with Python APIs)
+const FormData = require('form-data'); // To send multipart/form-data
 const app = express();
 const PORT = process.env.PORT || 4000;
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt'); // For password hashing
+const jwt = require('jsonwebtoken'); // JWT-based authentication
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors()); // Allow frontend requests from different origins
+app.use(express.json()); // Middleware setup
 
-// MongoDB connection
+// Connect to MongoDB using Mongoose
 mongoose.connect('mongodb+srv://Admin:Admin@cluster0.uxdft.mongodb.net/DB11', {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -25,7 +25,10 @@ mongoose.connect('mongodb+srv://Admin:Admin@cluster0.uxdft.mongodb.net/DB11', {
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// User Model
+// MongoDB Schemas
+// ----------------------
+
+// User schema - stores personal info, password, face encoding, and balance
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true }, 
@@ -36,7 +39,7 @@ const userSchema = new mongoose.Schema({
   registrationDate: { type: Date, default: Date.now }
 });
 
-// Transaction Schema
+// Transactions schema - tracks balance changes for users
 const TransactionSchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   type: String, // 'top-up' or 'deduction'
@@ -45,6 +48,7 @@ const TransactionSchema = new mongoose.Schema({
   time_stamp: { type: Date, default: Date.now },
 });
 
+// Trip History schema - logs purchased routes by users
 const TripHistorySchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   route_id: { type: String, required: true },
@@ -53,12 +57,11 @@ const TripHistorySchema = new mongoose.Schema({
   price: { type: Number, required: true },
   purchase_time: { type: Date, default: Date.now },
   status: { type: String, enum: ['unused', 'used'], default: 'unused' },
-  // Optional fields
   stops: String,
   used_time: Date
 });
 
-// New GTFS Models
+// GTFS (transit data) route and stop schemas
 const Route = mongoose.model("Route", new mongoose.Schema({
   route_id: String,
   route_short_name: String,
@@ -73,7 +76,10 @@ const Stop = mongoose.model("Stop", new mongoose.Schema({
   }));
 
 
-// New API Endpoints for GTFS
+// ----------------------
+// GTFS Endpoints
+
+// Get all transit routes
 app.get("/api/gtfs/routes", async (req, res) => {
   try {
     const routes = await Route.find();
@@ -83,6 +89,7 @@ app.get("/api/gtfs/routes", async (req, res) => {
   }
 });
 
+// Get all transit stops
 app.get("/api/gtfs/stops", async (req, res) => {
   try {
     const stops = await Stop.find();
@@ -92,11 +99,12 @@ app.get("/api/gtfs/stops", async (req, res) => {
   }
 });
 
+// Search transit routes and geocode them for map display
 app.get("/api/gtfs/search", async (req, res) => {
   try {
     const searchTerm = req.query.q;
 
-    // 1. Find matching routes
+    // Find matching route names
     const routes = await Route.find({
       $or: [
         { route_long_name: { $regex: searchTerm, $options: 'i' } },
@@ -104,7 +112,7 @@ app.get("/api/gtfs/search", async (req, res) => {
       ]
     });
 
-    // 2. Process each route
+    // Geocode route segments
     const routesWithPath = await Promise.all(
       routes.map(async (route) => {
         // Extract location names from route_long_name (e.g., "Galway → Limerick → Cork")
@@ -148,7 +156,7 @@ app.get("/api/gtfs/search", async (req, res) => {
 });
 
 
-// Hash password before saving
+// Pre-save hook: hashes password before storing user
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   
@@ -157,11 +165,12 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// MongoDB models
 const User = mongoose.model('User', userSchema);
 const Transaction = mongoose.model('Transaction', TransactionSchema);
 const TripHistory = mongoose.model('TripHistory', TripHistorySchema);
 
-// Transform existing stops to include location field
+// Optional: Add location fields to stops
 async function updateStopsWithLocation() {
   const stops = await Stop.find({ location: { $exists: false } });
   for (const stop of stops) {
@@ -231,7 +240,10 @@ app.get("/api/gtfs/stops/nearby", async (req, res) => {
   }
 });
 
-// Set up multer for file upload
+// ----------------------
+// User Registration (with face encoding)
+
+// Setup multer for image upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = './uploads';
@@ -248,7 +260,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-// Example of how to update the register endpoint in your Node.js server
+// Register a user with image + face encoding
 app.post('/api/user-register', upload.single('image'), async (req, res) => {
   try {
     const { name,password,phone } = req.body;
@@ -262,7 +274,7 @@ app.post('/api/user-register', upload.single('image'), async (req, res) => {
     console.log(`Processing registration for ${name} with email ${email}`);
     console.log(`Image saved at: ${imagePath}`)
     
-    // Create form data for Python API
+    // Send image to Python API for face encoding
     const formData = new FormData();
     formData.append('image', fs.createReadStream(imagePath));
 
@@ -307,12 +319,14 @@ app.post('/api/user-register', upload.single('image'), async (req, res) => {
   }
 });
 
+// Get all registered users or by ID
 app.get('/api/register-user/:id', async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json({ success: false, message: "User not found" });
   
   res.json({ success: true, user });
 });
+
 
 app.get('/api/register-user', async (req, res) => {
   try {
@@ -324,7 +338,7 @@ app.get('/api/register-user', async (req, res) => {
   }
 });
 
-
+// Verify face with uploaded image and stored encodings
 app.post('/api/verify-face', upload.single('image'), async (req, res) => {
   try {
     const imagePath = req.file.path;
@@ -381,6 +395,10 @@ app.post('/api/verify-face', upload.single('image'), async (req, res) => {
   }
 });
 
+// ----------------------
+// User Authentication and Dashboard
+
+// Login route (email/password)
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -411,7 +429,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Middleware to Verify JWT
+// Middleware to protect routes
 const authenticateToken = (req, res, next) => {
   const token = req.header('Authorization');
   if (!token) return res.status(401).json({ message: 'Access denied' });
@@ -425,7 +443,7 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-// Protected Dashboard Route
+// Dashboard route (requires auth)
 app.get('/api/dashboard', authenticateToken, async (req, res) => {
   try {
       const user = await User.findById(req.user.userId).select("name email balance");
@@ -451,7 +469,9 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
   }
 });
 
-// Payment Processing Endpoint// Payment Processing Endpoint
+// ----------------------
+// Ticket Purchase (Face Pay)
+
 app.post('/pay-with-face', async (req, res) => {
   console.log('Request body:', req.body);
 
@@ -526,7 +546,10 @@ app.post('/pay-with-face', async (req, res) => {
     res.status(500).json({ message: 'Payment processing failed', error: error.message });
   }
 });
-// Define the route to get all transactions
+// ----------------------
+// Transaction and Trip History
+
+// Get all transactions
 app.get('/transactions', async (req, res) => {
   try {
     // Retrieve all transactions from the database
@@ -547,7 +570,7 @@ app.get('/transactions', async (req, res) => {
   }
 });
 
-// Top-up Endpoint
+// Top-up balance
 app.post('/api/top-up', async (req, res) => {
   try {
     const { userId, amount } = req.body;
@@ -573,7 +596,7 @@ app.post('/api/top-up', async (req, res) => {
   }
 });
 
-// Get All Trip History
+// Get all trip history
 app.get('/trip-history', async (req, res) => {
   try {
     const trips = await TripHistory.find().sort({ _id: -1 }); // Get latest trips first
